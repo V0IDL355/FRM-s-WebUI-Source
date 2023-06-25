@@ -1,4 +1,4 @@
-import { MapContainer, useMap } from 'react-leaflet';
+import { MapContainer, useMap } from "react-leaflet";
 import {
   CRS,
   Icon,
@@ -7,21 +7,21 @@ import {
   LayerGroup,
   Popup,
   imageOverlay,
-} from 'leaflet';
-import React from 'react';
-import Typography from '@mui/material/Typography/Typography';
-import Box from '@mui/material/Box/Box';
-import ReactDOMServer from 'react-dom/server';
-import * as Icons from '@mui/icons-material';
-import ButtonGroup from '@mui/material/ButtonGroup/ButtonGroup';
-import Button from '@mui/material/Button/Button';
-import FormControlLabel from '@mui/material/FormControlLabel/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox/Checkbox';
-import Card from '@mui/material/Card/Card';
-import ListItem from '@mui/material/ListItem/ListItem';
-import List from '@mui/material/List/List';
-import { DataGrid } from '@mui/x-data-grid/DataGrid/DataGrid';
-import CardContent from '@mui/material/CardContent/CardContent';
+} from "leaflet";
+import React from "react";
+import Typography from "@mui/material/Typography/Typography";
+import Box from "@mui/material/Box/Box";
+import ReactDOMServer from "react-dom/server";
+import * as Icons from "@mui/icons-material";
+import ButtonGroup from "@mui/material/ButtonGroup/ButtonGroup";
+import Button from "@mui/material/Button/Button";
+import FormControlLabel from "@mui/material/FormControlLabel/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox/Checkbox";
+import Card from "@mui/material/Card/Card";
+import ListItem from "@mui/material/ListItem/ListItem";
+import List from "@mui/material/List/List";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import CardContent from "@mui/material/CardContent/CardContent";
 
 const playerGroup = new LayerGroup();
 const droneGroup = new LayerGroup();
@@ -39,55 +39,55 @@ function Map() {
   const [playersShown, setPlayersShown] = React.useState(true);
 
   const train = new Icon({
-    iconUrl: '/img/Map/train.png',
+    iconUrl: "/img/Map/train.png",
   });
 
   const train_station = new Icon({
-    iconUrl: '/img/Map/train_station.png',
+    iconUrl: "/img/Map/train_station.png",
   });
 
   const player = new Icon({
-    iconUrl: '/img/Map/player.png',
+    iconUrl: "/img/Map/player.png",
   });
 
   const player_dead = new Icon({
-    iconUrl: '/img/Map/player_dead.png',
+    iconUrl: "/img/Map/player_dead.png",
   });
 
   const truck = new Icon({
-    iconUrl: '/img/Map/truck.png',
+    iconUrl: "/img/Map/truck.png",
   });
 
   const truck_station = new Icon({
-    iconUrl: '/img/Map/truck_station.png',
+    iconUrl: "/img/Map/truck_station.png",
   });
 
   const explorer = new Icon({
-    iconUrl: '/img/Map/explorer.png',
+    iconUrl: "/img/Map/explorer.png",
   });
 
   const tractor = new Icon({
-    iconUrl: '/img/Map/tractor.png',
+    iconUrl: "/img/Map/tractor.png",
   });
 
   const drone = new Icon({
-    iconUrl: '/img/Map/drone.png',
+    iconUrl: "/img/Map/drone.png",
   });
 
   const drone_station = new Icon({
-    iconUrl: '/img/Map/drone_station.png',
+    iconUrl: "/img/Map/drone_station.png",
   });
 
   const power_slug = new Icon({
-    iconUrl: '/img/Map/power_slug.png',
+    iconUrl: "/img/Map/power_slug.png",
   });
 
   const radar_tower = new Icon({
-    iconUrl: '/img/Map/radar_tower.png',
+    iconUrl: "/img/Map/radar_tower.png",
   });
 
   const space_elevator = new Icon({
-    iconUrl: '/img/Map/space_elevator.png',
+    iconUrl: "/img/Map/space_elevator.png",
   });
 
   const bounds: L.LatLngBoundsExpression = [
@@ -95,14 +95,14 @@ function Map() {
     [375e3, 425301.832031],
   ];
 
-  const layer = imageOverlay('/img/Map/map.png', bounds);
+  const layer = imageOverlay("/img/Map/map.png", bounds);
 
   async function createRealtimeLayer(
     url: RequestInfo | URL,
     type: string,
     map
   ) {
-    const response = await fetch('http://127.0.0.1:8080/' + url);
+    const response = await fetch("http://127.0.0.1:8080/" + url);
     const data = await response.text();
     const getGeo = JSON.parse(data);
 
@@ -124,7 +124,7 @@ function Map() {
         );
 
         switch (type) {
-          case 'Player':
+          case "Player":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
@@ -142,20 +142,23 @@ function Map() {
               marker.setIcon(player);
             }
             break;
-          case 'Drone':
+          case "Drone":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
                   Destination: {getGeo[i].CurrentDestination}
                 </Typography>
                 <Typography variant="h3" gutterBottom>
-                  Flying Mode: {getGeo[i].CurrentFlyingMode}
+                  Flying Speed: {Math.round(getGeo[i].FlyingSpeed)}
+                </Typography>
+                <Typography variant="h3" gutterBottom>
+                  Flying: {Math.round(getGeo[i].FlyingSpeed) > 0 ? "✅" : "❌"}
                 </Typography>
               </Box>
             );
             marker.setIcon(drone);
             break;
-          case 'Trains':
+          case "Trains":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
@@ -174,7 +177,7 @@ function Map() {
             );
             marker.setIcon(train);
             break;
-          case 'Vehicles':
+          case "Vehicles":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
@@ -187,13 +190,13 @@ function Map() {
             );
 
             switch (getGeo[i].Name) {
-              case 'Explorer':
+              case "Explorer":
                 marker.setIcon(explorer);
                 break;
-              case 'Truck':
+              case "Truck":
                 marker.setIcon(truck);
                 break;
-              case 'Tractor':
+              case "Tractor":
                 marker.setIcon(tractor);
                 break;
               default:
@@ -201,7 +204,7 @@ function Map() {
                 break;
             }
             break;
-          case 'Drone Station':
+          case "Drone Station":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
@@ -214,20 +217,47 @@ function Map() {
             );
             marker.setIcon(drone_station);
             break;
-          case 'Train Stations':
+          case "Train Stations":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
                   Name: {getGeo[i].Name}
                 </Typography>
                 <Typography variant="h3" gutterBottom>
-                  LoadingStatus: {getGeo[i].LoadingStatus}
+                  LoadingStatus:{" "}
+                  {(() => {
+                    switch (getGeo[i].LoadingStatus) {
+                      case "Idle":
+                        return <span>Idle ⏸️</span>;
+                      case "Loading":
+                        return <span>Loading ⬆️</span>;
+                      case "Unloading":
+                        return <span>Unloading ⬇️</span>;
+                      default:
+                        return null;
+                    }
+                  })()}
+                  ;
+                </Typography>
+                <Typography variant="h3" gutterBottom>
+                  LoadingMode:{" "}
+                  {(() => {
+                    switch (getGeo[i].LoadingMode) {
+                      case "Loading":
+                        return <span>Load ⬆️</span>;
+                      case "Unloading":
+                        return <span>Unload ⬇️</span>;
+                      default:
+                        console.log(getGeo[i].LoadMode);
+                        return null;
+                    }
+                  })()}
                 </Typography>
               </Box>
             );
             marker.setIcon(train_station);
             break;
-          case 'Radar Tower':
+          case "Radar Tower":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
@@ -242,7 +272,7 @@ function Map() {
             );
             marker.setIcon(radar_tower);
             break;
-          case 'Power Slug':
+          case "Power Slug":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
@@ -257,20 +287,30 @@ function Map() {
             );
             marker.setIcon(power_slug);
             break;
-          case 'Truck Station':
+          case "Truck Station":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
                   Name: {getGeo[i].Name}
                 </Typography>
                 <Typography variant="h3" gutterBottom>
-                  Load Mode: {getGeo[i].LoadMode}
+                  LoadMode:{" "}
+                  {(() => {
+                    switch (getGeo[i].LoadMode) {
+                      case "Load":
+                        return <span>Load ⬆️</span>;
+                      case "Unload":
+                        return <span>Unload ⬇️</span>;
+                      default:
+                        return null;
+                    }
+                  })()}
                 </Typography>
               </Box>
             );
             marker.setIcon(truck_station);
             break;
-          case 'Space Elevator':
+          case "Space Elevator":
             popupContent = () => (
               <Box>
                 <Typography variant="h2" gutterBottom>
@@ -329,30 +369,30 @@ function Map() {
       truckStationGroup.clearLayers();
       spaceElevatorGroup.clearLayers();
 
-      createRealtimeLayer('getPlayer', 'Player', playerGroup);
-      createRealtimeLayer('getDrone', 'Drone', droneGroup);
+      createRealtimeLayer("getPlayer", "Player", playerGroup);
+      createRealtimeLayer("getDrone", "Drone", droneGroup);
       createRealtimeLayer(
-        'getDroneStation',
-        'Drone Station',
+        "getDroneStation",
+        "Drone Station",
         droneStationGroup
       );
-      createRealtimeLayer('getTrains', 'Trains', trainGroup);
+      createRealtimeLayer("getTrains", "Trains", trainGroup);
       createRealtimeLayer(
-        'getTrainStation',
-        'Train Stations',
+        "getTrainStation",
+        "Train Stations",
         trainStationGroup
       );
-      createRealtimeLayer('getVehicles', 'Vehicles', vehicleGroup);
-      createRealtimeLayer('getRadarTower', 'Radar Tower', radarTowerGroup);
-      createRealtimeLayer('getPowerSlug', 'Power Slug', powerSlugGroup);
+      createRealtimeLayer("getVehicles", "Vehicles", vehicleGroup);
+      createRealtimeLayer("getRadarTower", "Radar Tower", radarTowerGroup);
+      createRealtimeLayer("getPowerSlug", "Power Slug", powerSlugGroup);
       createRealtimeLayer(
-        'getTruckStation',
-        'Truck Station',
+        "getTruckStation",
+        "Truck Station",
         truckStationGroup
       );
       createRealtimeLayer(
-        'getSpaceElevator',
-        'Space Elevator',
+        "getSpaceElevator",
+        "Space Elevator",
         spaceElevatorGroup
       );
     }
@@ -375,10 +415,10 @@ function Map() {
   }
 
   function handleZoom(type) {
-    if (type == '+') {
+    if (type == "+") {
       map.setZoom(map.getZoom() + 1);
     }
-    if (type == '-') {
+    if (type == "-") {
       map.setZoom(map.getZoom() - 1);
     }
   }
@@ -389,7 +429,7 @@ function Map() {
         sx={{
           top: 10,
           left: 10,
-          position: 'absolute',
+          position: "absolute",
         }}
       >
         <ButtonGroup
@@ -399,7 +439,7 @@ function Map() {
           <Button
             id="+"
             onClick={() => {
-              handleZoom('+');
+              handleZoom("+");
             }}
           >
             <Icons.Add />
@@ -407,7 +447,7 @@ function Map() {
           <Button
             id="-"
             onClick={() => {
-              handleZoom('-');
+              handleZoom("-");
             }}
           >
             <Icons.Remove />
@@ -421,7 +461,7 @@ function Map() {
     const layer = e.target.name;
     const enabled = e.target.checked;
     switch (layer) {
-      case 'playerGroup':
+      case "playerGroup":
         if (enabled) {
           playerGroup.addTo(map);
         }
@@ -429,7 +469,7 @@ function Map() {
           playerGroup.removeFrom(map);
         }
         break;
-      case 'droneGroup':
+      case "droneGroup":
         if (enabled) {
           droneGroup.addTo(map);
         }
@@ -437,7 +477,7 @@ function Map() {
           droneGroup.removeFrom(map);
         }
         break;
-      case 'droneStationGroup':
+      case "droneStationGroup":
         if (enabled) {
           droneStationGroup.addTo(map);
         }
@@ -445,7 +485,7 @@ function Map() {
           droneStationGroup.removeFrom(map);
         }
         break;
-      case 'trainGroup':
+      case "trainGroup":
         if (enabled) {
           trainGroup.addTo(map);
         }
@@ -453,7 +493,7 @@ function Map() {
           trainGroup.removeFrom(map);
         }
         break;
-      case 'trainStationGroup':
+      case "trainStationGroup":
         if (enabled) {
           trainStationGroup.addTo(map);
         }
@@ -461,7 +501,7 @@ function Map() {
           trainStationGroup.removeFrom(map);
         }
         break;
-      case 'vehicleGroup':
+      case "vehicleGroup":
         if (enabled) {
           vehicleGroup.addTo(map);
         }
@@ -469,7 +509,7 @@ function Map() {
           vehicleGroup.removeFrom(map);
         }
         break;
-      case 'radarTowerGroup':
+      case "radarTowerGroup":
         if (enabled) {
           radarTowerGroup.addTo(map);
         }
@@ -477,7 +517,7 @@ function Map() {
           radarTowerGroup.removeFrom(map);
         }
         break;
-      case 'powerSlugGroup':
+      case "powerSlugGroup":
         if (enabled) {
           powerSlugGroup.addTo(map);
         }
@@ -485,7 +525,7 @@ function Map() {
           powerSlugGroup.removeFrom(map);
         }
         break;
-      case 'truckStationGroup':
+      case "truckStationGroup":
         if (enabled) {
           truckStationGroup.addTo(map);
         }
@@ -493,7 +533,7 @@ function Map() {
           truckStationGroup.removeFrom(map);
         }
         break;
-      case 'spaceElevatorGroup':
+      case "spaceElevatorGroup":
         if (enabled) {
           spaceElevatorGroup.addTo(map);
         }
@@ -515,7 +555,7 @@ function Map() {
         sx={{
           top: 10,
           right: 10,
-          position: 'absolute',
+          position: "absolute",
         }}
       >
         <Button variant="contained" onClick={handleClick}>
@@ -524,7 +564,7 @@ function Map() {
 
         <Card
           sx={{
-            position: 'absolute',
+            position: "absolute",
             right: 0,
           }}
           hidden={!open}
@@ -676,7 +716,7 @@ function Map() {
         sx={{
           top: 50,
           right: 10,
-          position: 'absolute',
+          position: "absolute",
         }}
       >
         <Button variant="contained" onClick={handleClick}>
@@ -691,7 +731,7 @@ function Map() {
 
     React.useEffect(() => {
       const interval = setInterval(() => {
-        fetch('http://localhost:8080/getPlayer')
+        fetch("http://localhost:8080/getPlayer")
           .then((res) => res.json())
           .then((data) => {
             const players = data.map((player) => {
@@ -712,11 +752,11 @@ function Map() {
     return (
       <Box
         sx={{
-          position: 'fixed',
-          top: '0',
-          left: '25%',
-          width: '50%',
-          right: '25%',
+          position: "fixed",
+          top: "0",
+          left: "25%",
+          width: "50%",
+          right: "25%",
         }}
         hidden={playersShown}
       >
@@ -724,11 +764,11 @@ function Map() {
           <DataGrid
             rows={players}
             columns={[
-              { field: 'ID', headerName: 'ID', width: 70 },
-              { field: 'Name', headerName: 'Name', width: 150 },
-              { field: 'X', headerName: 'X', width: 150 },
-              { field: 'Y', headerName: 'Y', width: 150 },
-              { field: 'Z', headerName: 'Z', width: 150 },
+              { field: "ID", headerName: "ID", width: 70 },
+              { field: "Name", headerName: "Name", width: 150 },
+              { field: "X", headerName: "X", width: 150 },
+              { field: "Y", headerName: "Y", width: 150 },
+              { field: "Z", headerName: "Z", width: 150 },
             ]}
             initialState={{
               pagination: {
@@ -736,7 +776,7 @@ function Map() {
               },
             }}
             pageSizeOptions={[5, 10]}
-            getRowId={(row) => row['ID']}
+            getRowId={(row) => row["ID"]}
           />
         </Card>
       </Box>
@@ -756,12 +796,12 @@ function Map() {
         center={[0, 0]}
         crs={CRS.Simple}
         style={{
-          height: '100vh',
-          width: '100vw',
-          position: 'absolute',
+          height: "100vh",
+          width: "100vw",
+          position: "absolute",
           left: 0,
           zIndex: -1,
-          background: '#121212',
+          background: "#121212",
         }}
         zoomControl={false}
       >

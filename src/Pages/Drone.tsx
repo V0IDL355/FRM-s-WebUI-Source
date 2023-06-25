@@ -18,6 +18,7 @@ function Drone() {
   const [rows, setRows] = React.useState([]);
   const [cell, setCell] = React.useState(null as any);
   const columns: GridColDef[] = [
+    { field: 'Name', headerName: 'Name', width: 130 },
     { field: 'PairedStation', headerName: 'Paired Station', width: 130 },
     {
       field: 'DroneStatus',
@@ -67,14 +68,16 @@ function Drone() {
   }, []);
 
   for (const row of rows) {
-    if (!droneRows[row['ID']]) {
-      droneRows[row['ID']] = [];
+    const id = row['location']['x'] + row['location']['y'] + row['location']['z'];
+    const index = Math.abs(Math.round(id)).toString();
+    if (!droneRows[index]) {
+      droneRows[index] = [];
     }
 
-    if (droneRows[row['ID']].length >= 10) {
-      droneRows[row['ID']].shift();
+    if (droneRows[index].length >= 10) {
+      droneRows[index].shift();
     } else {
-      droneRows[row['ID']].push(row);
+      droneRows[index].push(row);
     }
   }
 
@@ -100,7 +103,7 @@ function Drone() {
             paginationModel: { page: 0, pageSize: 100 },
           },
         }}
-        getRowId={(row) => row.ID}
+        getRowId={(row) => row['location']['x'] + row['location']['y'] + row['location']['z'].toString()}
         pageSizeOptions={pageOptions()}
         onCellClick={setCell}
       />

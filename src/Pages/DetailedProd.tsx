@@ -91,7 +91,7 @@ function DetailedProd() {
             paginationModel: { page: 0, pageSize: 100 },
           },
         }}
-        getRowId={(row) => row['location']['x'].toString()}
+        getRowId={(row) => row['location']['x'] + row['location']['y'] + row['location']['z'].toString()}
         pageSizeOptions={pageOptions()}
         onCellClick={setCell}
       />
