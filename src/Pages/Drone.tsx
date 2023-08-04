@@ -1,6 +1,7 @@
-import { Box } from '@mui/material';
-import { GridColDef, DataGrid } from '@mui/x-data-grid';
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Alert, Box, Snackbar } from "@mui/material";
+import { GridColDef, DataGrid } from "@mui/x-data-grid";
+import React from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,67 +10,164 @@ import {
   Legend,
   Line,
   Tooltip,
-} from 'recharts';
-import tooltip from '../Utils/tooltip';
-import pageOptions from '../Utils/page';
+} from "recharts";
+import tooltip from "../Utils/tooltip";
+import pageOptions from "../Utils/page";
+import api from "../Utils/api";
 
 const droneRows: any[] = [];
+
 function Drone() {
-  const [rows, setRows] = React.useState([]);
-  const [cell, setCell] = React.useState(null as any);
-  const columns: GridColDef[] = [
-    { field: 'Name', headerName: 'Name', width: 130 },
-    { field: 'PairedStation', headerName: 'Paired Station', width: 130 },
+  const [rows, setRows] = React.useState([
     {
-      field: 'DroneStatus',
-      headerName: 'Drone Status',
+      Name: "Drone Port 1",
+      ClassName: "Build_DroneStation_C",
+      location: {
+        x: -30655.7890625,
+        y: 221870.6875,
+        z: -40.6326904296875,
+        rotation: 170,
+      },
+      PairedStation: "Drone Port 2",
+      ConnectedStations: [{ StationName: "Drone Port 2" }],
+      DroneStatus: "En Route",
+      AvgIncRate: Math.round(0),
+      AvgIncStack: Math.round(0),
+      AvgOutRate: Math.round(0),
+      AvgOutStack: Math.round(0),
+      AvgRndTrip: "00:02:39",
+      AvgTotalIncRate: Math.round(0),
+      AvgTotalIncStack: Math.round(0),
+      AvgTotalOutRate: Math.round(0),
+      AvgTotalOutStack: Math.round(0),
+      AvgTripIncAmt: Math.round(0),
+      EstRndTrip: "00:01:50",
+      EstTotalTransRate: Math.round(0),
+      EstTransRate: Math.round(0),
+      EstLatestTotalIncStack: Math.round(0),
+      EstLatestTotalOutStack: Math.round(0),
+      LatestIncStack: Math.round(0),
+      LatestOutStack: Math.round(0),
+      LatestRndTrip: "00:02:39",
+      LatestTripIncAmt: Math.round(0),
+      LatestTripOutAmt: Math.round(0),
+      MedianRndTrip: "00:02:39",
+      MedianTripIncAmt: Math.round(0),
+      MedianTripOutAmt: Math.round(0),
+      EstBatteryRate: Math.round(0),
+      features: {
+        properties: { name: "Drone Port", type: "Drone Station" },
+        geometry: {
+          coordinates: {
+            X: -30655.7890625,
+            Y: 221870.6875,
+            Z: -40.6326904296875,
+          },
+          type: "Point",
+        },
+      },
+    },
+  ]);
+  const [cell, setCell] = React.useState(null as any);
+  const [error, setError] = React.useState<string | null>(null);
+  const columns: GridColDef[] = [
+    { field: "Name", headerName: "Name", width: 130 },
+    { field: "PairedStation", headerName: "Paired Station", width: 130 },
+    {
+      field: "DroneStatus",
+      headerName: "Drone Status",
       width: 130,
     },
-    { field: 'AvgTotalIncRate', headerName: 'Avg Total Inc Rate', width: 150 },
+    { field: "AvgTotalIncRate", headerName: "Avg Total Inc Rate", width: 150 },
     {
-      field: 'AvgTotalOutRate',
-      headerName: 'Avg Total Out Rate',
+      field: "AvgTotalOutRate",
+      headerName: "Avg Total Out Rate",
       width: 150,
     },
     {
-      field: 'EstBatteryRate',
-      headerName: 'Est Battery Rate',
+      field: "EstBatteryRate",
+      headerName: "Est Battery Rate",
       width: 150,
     },
   ];
-
   React.useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchData = async () => {
       try {
-        fetch('http://localhost:8080/getDroneStation')
-          .then((res) => res.json())
-          .then((data) => {
-            data.forEach(
-              (data: {
-                AvgTotalIncRate: number;
-                AvgTotalOutRate: number;
-                EstBatteryRate: number;
-              }) => {
-                data.AvgTotalIncRate = Math.round(data.AvgTotalIncRate);
-                data.AvgTotalOutRate = Math.round(data.AvgTotalOutRate);
-                data.EstBatteryRate = Math.round(data.EstBatteryRate);
-              }
-            );
-
-            setRows(data);
-          });
-      } catch (err) {
-        console.log(err);
+        const result: Array<any> = await api.get("/getDroneStation");
+        result.forEach((data) => {
+          data.AvgTotalIncRate = Math.round(data.AvgTotalIncRate);
+          data.AvgTotalOutRate = Math.round(data.AvgTotalOutRate);
+          data.EstBatteryRate = Math.round(data.EstBatteryRate);
+        });
+        setRows(result);
+        setError(null);
+      } catch (error) {
+        setError("Error fetching data. Please try again later.");
+        setRows([
+          {
+            Name: "Drone Port 1",
+            ClassName: "Build_DroneStation_C",
+            location: {
+              x: -30655.7890625,
+              y: 221870.6875,
+              z: -40.6326904296875,
+              rotation: 170,
+            },
+            PairedStation: "Drone Port 2",
+            ConnectedStations: [{ StationName: "Drone Port 2" }],
+            DroneStatus: "En Route",
+            AvgIncRate: Math.round(Math.random() * 100),
+            AvgIncStack: Math.round(Math.random() * 100),
+            AvgOutRate: Math.round(Math.random() * 100),
+            AvgOutStack: Math.round(Math.random() * 100),
+            AvgRndTrip: "00:02:39",
+            AvgTotalIncRate: Math.round(Math.random() * 100),
+            AvgTotalIncStack: Math.round(Math.random() * 100),
+            AvgTotalOutRate: Math.round(Math.random() * 100),
+            AvgTotalOutStack: Math.round(Math.random() * 100),
+            AvgTripIncAmt: Math.round(Math.random() * 100),
+            EstRndTrip: "00:01:50",
+            EstTotalTransRate: Math.round(Math.random() * 100),
+            EstTransRate: Math.round(Math.random() * 100),
+            EstLatestTotalIncStack: Math.round(Math.random() * 100),
+            EstLatestTotalOutStack: Math.round(Math.random() * 100),
+            LatestIncStack: Math.round(Math.random() * 100),
+            LatestOutStack: Math.round(Math.random() * 100),
+            LatestRndTrip: "00:02:39",
+            LatestTripIncAmt: Math.round(Math.random() * 100),
+            LatestTripOutAmt: Math.round(Math.random() * 100),
+            MedianRndTrip: "00:02:39",
+            MedianTripIncAmt: Math.round(Math.random() * 100),
+            MedianTripOutAmt: Math.round(Math.random() * 100),
+            EstBatteryRate: Math.round(Math.random() * 100),
+            features: {
+              properties: { name: "Drone Port", type: "Drone Station" },
+              geometry: {
+                coordinates: {
+                  X: -30655.7890625,
+                  Y: 221870.6875,
+                  Z: -40.6326904296875,
+                },
+                type: "Point",
+              },
+            },
+          },
+        ]);
       }
+    };
+
+    const interval = setInterval(() => {
+      fetchData();
     }, 1000);
     return () => {
       clearInterval(interval);
     };
   }, []);
-
   for (const row of rows) {
-    const id = row['location']['x'] + row['location']['y'] + row['location']['z'];
-    const index = Math.abs(Math.round(id)).toString();
+    const id = Math.round(
+      row["location"]["x"] + row["location"]["y"] + row["location"]["z"]
+    );
+    const index = id;
     if (!droneRows[index]) {
       droneRows[index] = [];
     }
@@ -82,19 +180,32 @@ function Drone() {
   }
 
   const droneChart: any[] = [];
-
   if (droneRows[cell?.id]) {
     for (const row of droneRows[cell?.id]) {
       droneChart.push({
-        AvgTotalIncRate: row['AvgTotalIncRate'],
-        AvgTotalOutRate: row['AvgTotalOutRate'],
-        EstBatteryRate: row['EstBatteryRate'],
+        AvgTotalIncRate: row["AvgTotalIncRate"],
+        AvgTotalOutRate: row["AvgTotalOutRate"],
+        EstBatteryRate: row["EstBatteryRate"],
       });
     }
   }
 
   return (
     <Box>
+      <Snackbar open={!!error}>
+        <Alert
+          severity="error"
+          sx={{
+            width: "50%",
+            position: "fixed",
+            bottom: "10%",
+            left: "25%",
+          }}
+          variant="filled"
+        >
+          {error}
+        </Alert>
+      </Snackbar>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -103,15 +214,19 @@ function Drone() {
             paginationModel: { page: 0, pageSize: 100 },
           },
         }}
-        getRowId={(row) => row['location']['x'] + row['location']['y'] + row['location']['z'].toString()}
+        getRowId={(row) =>
+          Math.round(
+            row["location"]["x"] + row["location"]["y"] + row["location"]["z"]
+          )
+        }
         pageSizeOptions={pageOptions()}
         onCellClick={setCell}
       />
       <Box
         sx={{
-          height: '50vh',
-          width: '100%',
-          position: 'relative',
+          height: "50vh",
+          width: "100%",
+          position: "relative",
         }}
       >
         <ResponsiveContainer>

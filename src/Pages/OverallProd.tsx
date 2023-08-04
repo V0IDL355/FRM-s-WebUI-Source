@@ -1,6 +1,7 @@
-import { Box } from '@mui/material';
-import { GridColDef, DataGrid } from '@mui/x-data-grid';
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Alert, Box, Snackbar } from "@mui/material";
+import { GridColDef, DataGrid } from "@mui/x-data-grid";
+import React from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,60 +10,131 @@ import {
   Legend,
   Line,
   Tooltip,
-} from 'recharts';
-import tooltip from '../Utils/tooltip';
-import pageOptions from '../Utils/page';
+} from "recharts";
+import tooltip from "../Utils/tooltip";
+import pageOptions from "../Utils/page";
+import api from "../Utils/api";
 
 const overallProdRows: any[] = [];
 function OverallProd() {
-  const [rows, setRows] = React.useState([]);
+  const [error, setError] = React.useState<string | null>(null);
+  const [rows, setRows] = React.useState([
+    {
+      Name: "Alclad Aluminum Sheet",
+      ClassName: "Desc_AluminumPlate_C",
+      ProdPerMin: "P:0.0/min - C: 0.0/min",
+      ProdPercent: 0,
+      ConsPercent: 0,
+      CurrentProd: 0,
+      MaxProd: 0,
+      CurrentConsumed: 0,
+      MaxConsumed: 89.999992370605469,
+      Type: "Belt",
+    },
+    {
+      Name: "Alumina Solution",
+      ClassName: "Desc_AluminaSolution_C",
+      ProdPerMin: "P:0.0/min - C: 0.0/min",
+      ProdPercent: 0,
+      ConsPercent: 0,
+      CurrentProd: 0,
+      MaxProd: 0,
+      CurrentConsumed: 0,
+      MaxConsumed: 660,
+      Type: "Pipe",
+    },
+    {
+      Name: "Aluminum Casing",
+      ClassName: "Desc_AluminumCasing_C",
+      ProdPerMin: "P:0.0/min - C: 0.0/min",
+      ProdPercent: 0,
+      ConsPercent: 0,
+      CurrentProd: 0,
+      MaxProd: 0,
+      CurrentConsumed: 0,
+      MaxConsumed: 180,
+      Type: "Belt",
+    },
+  ]);
   const [cell, setCell] = React.useState(null as any);
   const columns: GridColDef[] = [
-    { field: 'Name', headerName: 'Name', width: 200 },
-    { field: 'ProdPerMin', headerName: 'Prod Per Min', width: 250 },
-    { field: 'ConsPercent', headerName: 'Cons Percent (%)', width: 130 },
+    { field: "Name", headerName: "Name", width: 200 },
+    { field: "ProdPerMin", headerName: "Prod Per Min", width: 250 },
+    { field: "ConsPercent", headerName: "Cons Percent (%)", width: 130 },
     {
-      field: 'ProdPercent',
-      headerName: 'Prod Percent (%)',
+      field: "ProdPercent",
+      headerName: "Prod Percent (%)",
       width: 130,
     },
     {
-      field: 'CurrentProd',
-      headerName: 'Current Prod',
+      field: "CurrentProd",
+      headerName: "Current Prod",
       width: 130,
     },
     {
-      field: 'MaxProd',
-      headerName: 'Max Prod',
+      field: "MaxProd",
+      headerName: "Max Prod",
       width: 150,
     },
   ];
 
   React.useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchData = async () => {
       try {
-        fetch('http://localhost:8080/getProdStats')
-          .then((res) => res.json())
-          .then((data) => {
-            data.forEach(
-              (data: {
-                CurrentProd: number;
-                ProdPercent: number;
-                ConsPercent: number;
-                MaxProd: number;
-              }) => {
-                data.ProdPercent = Math.round(data.ProdPercent);
-                data.ConsPercent = Math.round(data.ConsPercent);
-                data.MaxProd = Math.round(data.MaxProd);
-                data.CurrentProd = Math.round(data.CurrentProd);
-              }
-            );
-
-            setRows(data);
-          });
-      } catch (err) {
-        console.log(err);
+        const result: Array<any> = await api.get("/getProdStats");
+        result.forEach((data) => {
+          data.ProdPercent = Math.round(data.ProdPercent);
+          data.ConsPercent = Math.round(data.ConsPercent);
+          data.CurrentProd = Math.round(data.CurrentProd);
+          data.MaxProd = Math.round(data.MaxProd);
+        });
+        setRows(result);
+        setError(null);
+      } catch (error) {
+        setError("Error fetching data. Please try again later.");
+        setRows([
+          {
+            Name: "Alclad Aluminum Sheet",
+            ClassName: "Desc_AluminumPlate_C",
+            ProdPerMin: "P:0.0/min - C: 0.0/min",
+            ProdPercent: Math.round(Math.random() * 100),
+            ConsPercent: Math.round(Math.random() * 100),
+            CurrentProd: Math.round(Math.random() * 100),
+            MaxProd: Math.round(Math.random() * 100),
+            CurrentConsumed: 0,
+            MaxConsumed: 89.999992370605469,
+            Type: "Belt",
+          },
+          {
+            Name: "Alumina Solution",
+            ClassName: "Desc_AluminaSolution_C",
+            ProdPerMin: "P:0.0/min - C: 0.0/min",
+            ProdPercent: Math.round(Math.random() * 100),
+            ConsPercent: Math.round(Math.random() * 100),
+            CurrentProd: Math.round(Math.random() * 100),
+            MaxProd: Math.round(Math.random() * 100),
+            CurrentConsumed: 0,
+            MaxConsumed: 660,
+            Type: "Pipe",
+          },
+          {
+            Name: "Aluminum Casing",
+            ClassName: "Desc_AluminumCasing_C",
+            ProdPerMin: "P:0.0/min - C: 0.0/min",
+            ProdPercent: Math.round(Math.random() * 100),
+            ConsPercent: Math.round(Math.random() * 100),
+            CurrentProd: Math.round(Math.random() * 100),
+            MaxProd: Math.round(Math.random() * 100),
+            CurrentConsumed: 0,
+            MaxConsumed: 180,
+            Type: "Belt",
+          },
+        ]);
       }
+    };
+
+    const interval = setInterval(() => {
+      fetchData();
     }, 1000);
     return () => {
       clearInterval(interval);
@@ -70,14 +142,14 @@ function OverallProd() {
   }, []);
 
   for (const row of rows) {
-    if (!overallProdRows[row['Name']]) {
-      overallProdRows[row['Name']] = [];
+    if (!overallProdRows[row["Name"]]) {
+      overallProdRows[row["Name"]] = [];
     }
 
-    if (overallProdRows[row['Name']].length >= 10) {
-      overallProdRows[row['Name']].shift();
+    if (overallProdRows[row["Name"]].length >= 10) {
+      overallProdRows[row["Name"]].shift();
     } else {
-      overallProdRows[row['Name']].push(row);
+      overallProdRows[row["Name"]].push(row);
     }
   }
 
@@ -86,16 +158,31 @@ function OverallProd() {
   if (overallProdRows[cell?.id]) {
     for (const row of overallProdRows[cell?.id]) {
       overallProdChart.push({
-        MaxProd: row['MaxProd'],
-        CurrentProd: row['CurrentProd'],
-        ProdPercent: row['ProdPercent'],
-        ConsPercent: row['ConsPercent'],
+        MaxProd: row["MaxProd"],
+        CurrentProd: row["CurrentProd"],
+        ProdPercent: row["ProdPercent"],
+        ConsPercent: row["ConsPercent"],
       });
     }
   }
 
   return (
     <Box>
+      <Snackbar open={!!error}>
+        <Alert
+          severity="error"
+          sx={{
+            width: "50%",
+            position: "fixed",
+            bottom: "10%",
+            left: "25%",
+          }}
+          variant="filled"
+        >
+          Using test data! This means that while getting the data there was an
+          error!
+        </Alert>
+      </Snackbar>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -110,9 +197,9 @@ function OverallProd() {
       />
       <Box
         sx={{
-          height: '50vh',
-          width: '100%',
-          position: 'relative',
+          height: "50vh",
+          width: "100%",
+          position: "relative",
         }}
       >
         <ResponsiveContainer>

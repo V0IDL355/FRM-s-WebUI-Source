@@ -1,6 +1,7 @@
-import { Box } from '@mui/material';
-import { GridColDef, DataGrid } from '@mui/x-data-grid';
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Alert, Box, Snackbar } from "@mui/material";
+import { GridColDef, DataGrid } from "@mui/x-data-grid";
+import React from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,86 +10,135 @@ import {
   YAxis,
   Legend,
   Line,
-} from 'recharts';
-import tooltip from '../Utils/tooltip';
-import pageOptions from '../Utils/page';
+} from "recharts";
+import tooltip from "../Utils/tooltip";
+import pageOptions from "../Utils/page";
+import api from "../Utils/api";
 
 const powerRows: any[] = [];
 function Power() {
-  const [rows, setRows] = React.useState([]);
+  const [error, setError] = React.useState<string | null>(null);
   const [cell, setCell] = React.useState(null as any);
+  const [rows, setRows] = React.useState([
+    {
+      CircuitID: 58,
+      PowerCapacity: Math.round(0),
+      PowerProduction: Math.round(0),
+      PowerConsumed: Math.round(0),
+      PowerMaxConsumed: Math.round(0),
+      BatteryDifferential: 0,
+      BatteryPercent: 100,
+      BatteryCapacity: 2500,
+      BatteryTimeEmpty: "00:00:00",
+      BatteryTimeFull: "00:00:00",
+      FuseTriggered: false,
+    },
+    {
+      CircuitID: 9,
+      PowerCapacity: Math.round(0),
+      PowerProduction: Math.round(0),
+      PowerConsumed: Math.round(0),
+      PowerMaxConsumed: Math.round(0),
+      BatteryDifferential: 0,
+      BatteryPercent: 100,
+      BatteryCapacity: 2500,
+      BatteryTimeEmpty: "00:00:00",
+      BatteryTimeFull: "00:00:00",
+      FuseTriggered: false,
+    },
+  ]);
 
   const columns: GridColDef[] = [
-    { field: 'CircuitID', headerName: 'Circuit ID', width: 80 },
-    { field: 'PowerCapacity', headerName: 'Power Capacity (MW)', width: 150 },
+    { field: "CircuitID", headerName: "Circuit ID", width: 80 },
+    { field: "PowerCapacity", headerName: "Power Capacity (MW)", width: 150 },
     {
-      field: 'PowerProduction',
-      headerName: 'Power Production (MW)',
+      field: "PowerProduction",
+      headerName: "Power Production (MW)",
       width: 180,
     },
     {
-      field: 'PowerConsumed',
-      headerName: 'Power Consumed (MW)',
+      field: "PowerConsumed",
+      headerName: "Power Consumed (MW)",
       width: 180,
     },
     {
-      field: 'PowerMaxConsumed',
-      headerName: 'Max Consumed (MW)',
+      field: "PowerMaxConsumed",
+      headerName: "Max Consumed (MW)",
       width: 180,
     },
     {
-      field: 'BatteryDifferential',
-      headerName: 'Battery Differential (MW)',
+      field: "BatteryDifferential",
+      headerName: "Battery Differential (MW)",
       width: 180,
     },
-    { field: 'BatteryPercent', headerName: 'Battery Percent (%)', width: 150 },
-    { field: 'BatteryCapacity', headerName: 'Battery Capacity', width: 150 },
+    { field: "BatteryPercent", headerName: "Battery Percent (%)", width: 150 },
+    { field: "BatteryCapacity", headerName: "Battery Capacity", width: 150 },
     {
-      field: 'BatteryTimeEmpty',
-      headerName: 'Time Till Battery Empty',
+      field: "BatteryTimeEmpty",
+      headerName: "Time Till Battery Empty",
       width: 180,
     },
     {
-      field: 'BatteryTimeFull',
-      headerName: 'Time Till Battery Full',
+      field: "BatteryTimeFull",
+      headerName: "Time Till Battery Full",
       width: 150,
     },
     {
-      field: 'FuseTriggered',
-      headerName: 'Fuse Triggered',
+      field: "FuseTriggered",
+      headerName: "Fuse Triggered",
       width: 150,
     },
   ];
 
   React.useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchData = async () => {
       try {
-        fetch('http://localhost:8080/getPower')
-          .then((res) => res.json())
-          .then((data) => {
-            data.forEach(
-              (data: {
-                PowerCapacity: number;
-                PowerProduction: number;
-                PowerConsumed: number;
-                PowerMaxConsumed: number;
-                BatteryDifferential: number;
-                BatteryCapacity: number;
-              }) => {
-                data.PowerCapacity = Math.round(data.PowerCapacity);
-                data.PowerProduction = Math.round(data.PowerProduction);
-                data.PowerConsumed = Math.round(data.PowerConsumed);
-                data.PowerMaxConsumed = Math.round(data.PowerMaxConsumed);
-                data.BatteryDifferential = Math.round(data.BatteryDifferential);
-                data.BatteryCapacity = Math.round(data.BatteryCapacity);
-              }
-            );
-
-            setRows(data);
-          });
-      } catch (err) {
-        console.log(err);
+        const result: Array<any> = await api.get("/getPower");
+        result.forEach((data) => {
+          data.PowerCapacity = Math.round(data.PowerCapacity);
+          data.PowerProduction = Math.round(data.PowerProduction);
+          data.PowerConsumed = Math.round(data.PowerConsumed);
+          data.PowerMaxConsumed = Math.round(data.PowerMaxConsumed);
+          data.BatteryDifferential = Math.round(data.BatteryDifferential);
+          data.BatteryCapacity = Math.round(data.BatteryCapacity);
+        });
+        setRows(result);
+        setError(null);
+      } catch (error) {
+        setError("Error fetching data. Please try again later.");
+        setRows([
+          {
+            CircuitID: 58,
+            PowerCapacity: Math.round(Math.random() * 100),
+            PowerProduction: Math.round(Math.random() * 100),
+            PowerConsumed: Math.round(Math.random() * 100),
+            PowerMaxConsumed: Math.round(Math.random() * 100),
+            BatteryDifferential: 0,
+            BatteryPercent: 100,
+            BatteryCapacity: 2500,
+            BatteryTimeEmpty: "00:00:00",
+            BatteryTimeFull: "00:00:00",
+            FuseTriggered: false,
+          },
+          {
+            CircuitID: 9,
+            PowerCapacity: Math.round(Math.random() * 100),
+            PowerProduction: Math.round(Math.random() * 100),
+            PowerConsumed: Math.round(Math.random() * 100),
+            PowerMaxConsumed: Math.round(Math.random() * 100),
+            BatteryDifferential: 0,
+            BatteryPercent: 100,
+            BatteryCapacity: 2500,
+            BatteryTimeEmpty: "00:00:00",
+            BatteryTimeFull: "00:00:00",
+            FuseTriggered: false,
+          },
+        ]);
       }
+    };
+
+    const interval = setInterval(() => {
+      fetchData();
     }, 1000);
     return () => {
       clearInterval(interval);
@@ -96,14 +146,14 @@ function Power() {
   }, []);
 
   for (const row of rows) {
-    if (!powerRows[row['CircuitID']]) {
-      powerRows[row['CircuitID']] = [];
+    if (!powerRows[row["CircuitID"]]) {
+      powerRows[row["CircuitID"]] = [];
     }
 
-    if (powerRows[row['CircuitID']].length >= 10) {
-      powerRows[row['CircuitID']].shift();
+    if (powerRows[row["CircuitID"]].length >= 10) {
+      powerRows[row["CircuitID"]].shift();
     } else {
-      powerRows[row['CircuitID']].push(row);
+      powerRows[row["CircuitID"]].push(row);
     }
   }
 
@@ -112,7 +162,7 @@ function Power() {
   for (let v = 0; v < powerRows.length; v++) {
     if (powerRows[v]) {
       for (let i = 0; i < powerRows[v].length; i++) {
-        if (powerRows[v][i]['CircuitID'] === cell?.id) {
+        if (powerRows[v][i]["CircuitID"] === cell?.id) {
           powerChart.push({
             CircuitID: powerRows[v][i].CircuitID,
             PowerCapacity: powerRows[v][i].PowerCapacity,
@@ -127,6 +177,21 @@ function Power() {
 
   return (
     <Box>
+      <Snackbar open={!!error}>
+        <Alert
+          severity="error"
+          sx={{
+            width: "50%",
+            position: "fixed",
+            bottom: "10%",
+            left: "25%",
+          }}
+          variant="filled"
+        >
+          Using test data! This means that while getting the data there was an
+          error!
+        </Alert>
+      </Snackbar>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -141,9 +206,9 @@ function Power() {
       />
       <Box
         sx={{
-          height: '50vh',
-          width: '100%',
-          position: 'relative',
+          height: "50vh",
+          width: "100%",
+          position: "relative",
         }}
       >
         <ResponsiveContainer>
