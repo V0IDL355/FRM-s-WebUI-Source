@@ -1,76 +1,113 @@
-import { Alert, Box, Snackbar, TextField } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Container,
+  InputAdornment,
+  Paper,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React from "react";
 
 function Settings() {
-  const [errOpen, setErrOpen] = React.useState(false);
-  const [succOpen, setSuccessOpen] = React.useState(false);
-
-  function validIp(ip) {
-    return !!ip.match(
-      /\b(?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9]))\b:[0-9]\d+\b/g
-    );
-  }
-
-  const handleClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setSuccessOpen(false);
-    setErrOpen(false);
-  };
+  const [error, setError] = React.useState<boolean>(false);
+  const [alertText, setAlertText] = React.useState<string>("");
 
   return (
     <Box>
-      <Snackbar open={succOpen} autoHideDuration={6000} onClose={handleClose}>
-        <Alert
-          variant="filled"
-          severity="success"
-          sx={{
-            width: "50%",
-            position: "fixed",
-            bottom: "10%",
-            left: "25%",
+      <Container>
+        <Snackbar
+          open={alertText != ""}
+          autoHideDuration={6000}
+          onClose={() => {
+            setError(false);
+            setAlertText("");
           }}
         >
-          Successfully changed the used ip
-        </Alert>
-      </Snackbar>
-      <Snackbar open={errOpen} autoHideDuration={6000} onClose={handleClose}>
-        <Alert
-          variant="filled"
-          severity="error"
+          <Alert
+            variant="filled"
+            severity={error ? "error" : "success"}
+            sx={{
+              width: "50%",
+              position: "fixed",
+              bottom: "10%",
+              left: "25%",
+            }}
+          >
+            {alertText}
+          </Alert>
+        </Snackbar>
+        <Paper
+          elevation={0}
           sx={{
-            width: "50%",
+            top: 20,
+            display: "grid",
             position: "fixed",
-            bottom: "10%",
-            left: "25%",
           }}
         >
-          Invalid ip address example: 127.0.0.1:8080
-        </Alert>
-      </Snackbar>
-      <TextField
-        label="Ip:Port"
-        defaultValue={localStorage.getItem("ip")}
-        variant="outlined"
-        sx={{ top: 10 }}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          if (validIp(event.target.value)) {
-            console.log(validIp(event.target.value));
-            localStorage.setItem("ip", event.target.value);
-            setErrOpen(false);
-            setSuccessOpen(true);
-          } else {
-            console.log(event.target.value);
-            setErrOpen(true);
-            setSuccessOpen(false);
-          }
-        }}
-      ></TextField>
+          <Typography sx={{ textAlign: "center" }}>Global</Typography>
+          <TextField
+            label="Ip:Port"
+            defaultValue={localStorage.getItem("ip")}
+            variant="outlined"
+            onChange={async (event: React.ChangeEvent<HTMLInputElement>) => {
+              await fetch(`http://${event.target.value}/getPlayer`)
+                .finally(() => {
+                  localStorage.setItem("ip", event.target.value);
+                  setError(false);
+                  setAlertText("Valid IP!");
+                })
+                .catch(() => {
+                  setError(true);
+                  setAlertText("Invalid IP!");
+                });
+            }}
+          ></TextField>
+          <TextField
+            sx={{ marginTop: 1 }}
+            label="Fetch Speed"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">ms</InputAdornment>
+              ),
+            }}
+            defaultValue={localStorage.getItem("fspeed")}
+            variant="outlined"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              if (parseInt(event.target.value)) {
+                localStorage.setItem("fspeed", event.target.value);
+                setError(false);
+                setAlertText("Valid speed!");
+              } else {
+                setError(true);
+                setAlertText("Invalid speed!");
+              }
+            }}
+          ></TextField>
+          <TextField
+            sx={{ marginTop: 1 }}
+            label="Map Fetch Speed"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">ms</InputAdornment>
+              ),
+            }}
+            defaultValue={localStorage.getItem("mfspeed")}
+            variant="outlined"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              if (parseInt(event.target.value)) {
+                localStorage.setItem("mfspeed", event.target.value);
+                setError(false);
+                setAlertText("Valid speed!");
+              } else {
+                setError(true);
+                setAlertText("Invalid speed!");
+              }
+            }}
+          ></TextField>
+        </Paper>
+      </Container>
     </Box>
   );
 }

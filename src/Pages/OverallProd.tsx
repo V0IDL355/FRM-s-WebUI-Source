@@ -133,9 +133,12 @@ function OverallProd() {
       }
     };
 
+    const fspeedString = localStorage.getItem("fspeed");
+    const delay = fspeedString ? parseInt(fspeedString) : 1000;
+
     const interval = setInterval(() => {
       fetchData();
-    }, 1000);
+    }, delay);
     return () => {
       clearInterval(interval);
     };

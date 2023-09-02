@@ -45,6 +45,14 @@ const MainComponent: React.FC = () => {
   if (!localStorage.getItem("ip")) {
     localStorage.setItem("ip", "127.0.0.1:8080");
   }
+
+  if (!localStorage.getItem("fspeed")) {
+    localStorage.setItem("fspeed", "1000");
+  }
+  if (!localStorage.getItem("fspeed")) {
+    localStorage.setItem("mfspeed", "2500");
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

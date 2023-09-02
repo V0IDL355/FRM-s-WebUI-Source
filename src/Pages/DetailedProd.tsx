@@ -146,7 +146,6 @@ function DetailedProd() {
         const result: Array<any> = await api.get("/getFactory");
         result.forEach((data) => {
           data.ManuSpeed = Math.round(data.ManuSpeed);
-          console.log(data);
         });
         setRows(result);
         setError(null);
@@ -259,9 +258,12 @@ function DetailedProd() {
       }
     };
 
+    const fspeedString = localStorage.getItem("fspeed");
+    const delay = fspeedString ? parseInt(fspeedString) : 1000;
+
     const interval = setInterval(() => {
       fetchData();
-    }, 1000);
+    }, delay);
     return () => {
       clearInterval(interval);
     };
