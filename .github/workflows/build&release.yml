@@ -23,6 +23,11 @@ jobs:
           npm install
           npm run build
 
+      - name: Create Zip Archive
+        run: |
+          cd dist
+          zip -r ../FRM-WebUI-${{ github.run_number }}.zip .
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -41,6 +46,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/FRM-WebUI-${{ github.run_number }}.zip # Replace with the path to your specific build artifact
-          asset_name: FRM-WebUI-${{ github.run_number }}.zip # Replace with the desired asset name
+          asset_path: .FRM-WebUI-${{ github.run_number }}.zip
+          asset_name: FRM-WebUI-${{ github.run_number }}.zip
           asset_content_type: application/zip
