@@ -28,31 +28,31 @@ jobs:
           cd dist
           zip -r ../FRM-WebUI-${{ github.run_number }}.zip .
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.run_number }}
-        release_name: Release ${{ github.run_number }}
-        draft: false
-        prerelease: false
-
-    - name: Upload Build Artifacts
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./FRM-WebUI-${{ github.run_number }}.zip
-        asset_name: FRM-WebUI-${{ github.run_number }}.zip
-        asset_content_type: application/zip
-
-    - name: Trigger Deployment Workflow in Other Repository
-      uses: peter-evans/repository-dispatch@v1
-      with:
-        token: ${{ secrets.PAT_OTHER_REPO }}
-        repository: GalaxyVOID/FicsitRemoteMonitoring
-        event-type: deploy
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+  
+      - name: Upload Build Artifacts
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./FRM-WebUI-${{ github.run_number }}.zip
+          asset_name: FRM-WebUI-${{ github.run_number }}.zip
+          asset_content_type: application/zip
+  
+      - name: Trigger Deployment Workflow in Other Repository
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.PAT_OTHER_REPO }}
+          repository: GalaxyVOID/FicsitRemoteMonitoring
+          event-type: deploy
