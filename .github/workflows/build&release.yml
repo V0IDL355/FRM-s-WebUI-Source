@@ -10,7 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Define your build steps here
+      - name: Checkout Source Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14' # Choose the Node.js version you need
+
+      - name: Install Dependencies and Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Create Zip Archive
+        run: |
+          cd dist
+          zip -r ../FRM-WebUI-${{ github.run_number }}.zip .
 
     - name: Create Release
       id: create_release
