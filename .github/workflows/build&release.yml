@@ -41,6 +41,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/FRM-WebUI-${{ github.run_number }}.zip # Replace with the path to your specific build artifact
+          asset_path: ${{ github.workspace }}/FRM-WebUI-${{ github.run_number }}.zip # Replace with the path to your specific build artifact
           asset_name: FRM-WebUI-${{ github.run_number }}.zip # Replace with the desired asset name
           asset_content_type: application/zip
