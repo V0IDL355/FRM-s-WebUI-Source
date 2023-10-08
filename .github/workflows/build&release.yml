@@ -58,4 +58,4 @@ jobs:
         run: |
           cd ficsit-remote-monitoring
           ls ../
-          unzip -oq ../deploy-artifact -d www
+          unzip -oq ../FRM-WebUI.zip -d www
