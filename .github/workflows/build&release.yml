@@ -41,7 +41,12 @@ jobs:
           ref: main
           path: ficsit-remote-monitoring
 
-      - name: Unzip and Replace Contents
+      - name: Remove Existing Contents in www Folder
         run: |
           cd ficsit-remote-monitoring/www
-          unzip -o ../../deploy-artifact
+          rm -rf ./*  # This command will remove all files and directories within www
+
+      - name: Unzip and Replace Contents
+        run: |
+          cd ficsit-remote-monitoring
+          unzip -oq ../deploy-artifact -d www
