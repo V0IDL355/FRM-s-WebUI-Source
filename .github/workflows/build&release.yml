@@ -54,10 +54,15 @@ jobs:
         env: 
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
+      - name: Remove Existing Contents in www Folder
+        run: |
+          cd ficsit-remote-monitoring/www
+          rm -rf ./*  # This command will remove all files and directories within www
+
       - name: Unzip and Replace Contents
         run: |
           cd ficsit-remote-monitoring/www
-          unzip -oq ../../deploy-artifact -d .
+          unzip -oq ../../FRM-WebUI.zip -d .
 
       - name: Stage Changes
         run: |
