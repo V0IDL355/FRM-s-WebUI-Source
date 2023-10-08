@@ -85,3 +85,5 @@ jobs:
         run: |
           cd ficsit-remote-monitoring
           git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
