@@ -62,7 +62,6 @@ jobs:
 
       - name: Replace www Folder Contents
         run: |
-          ls
           rm -rf ./www
-          mv ./tmp/* www
+          mv ./tmp/* ./www
           rm ./tmp
