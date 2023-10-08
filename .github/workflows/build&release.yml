@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout Source Repository
         uses: actions/checkout@v2
+        env: 
+          GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Cache NPM dependencies
         uses: actions/cache@v2
@@ -50,7 +52,7 @@ jobs:
           ref: main
           path: ficsit-remote-monitoring
         env: 
-          GITHUB_TOKEN: ${{ secrets.PAT_OTHER_REPO }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Set Git Config
         run: |
