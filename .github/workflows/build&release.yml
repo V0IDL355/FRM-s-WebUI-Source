@@ -79,6 +79,8 @@ jobs:
 
       - name: Push to Repository
         run: |
+          git config --global user.email "${{ secrets.EMAIL }}"
+          git config --global user.name "${{ secrets.USERNAME }}"
           git remote add FicsitRemoteMonitoring git@github.com:GalaxyVOID/FicsitRemoteMonitoring.git
           git add www
           git commit -m "Smth"
