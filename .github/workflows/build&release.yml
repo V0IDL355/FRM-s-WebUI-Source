@@ -66,3 +66,18 @@ jobs:
         run: |
           cd ficsit-remote-monitoring
           unzip -oq ../FRM-WebUI.zip -d www
+          
+      - name: Stage Changes
+        run: |
+          cd ficsit-remote-monitoring
+          git add -A
+      
+      - name: Commit Changes
+        run: |
+          cd ficsit-remote-monitoring
+          git commit -m "Update"
+      
+      - name: Push Changes
+        run: |
+          cd ficsit-remote-monitoring
+          git push origin main
