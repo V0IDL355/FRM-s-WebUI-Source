@@ -13,6 +13,14 @@ jobs:
       - name: Checkout Source Repository
         uses: actions/checkout@v2
 
+      - name: Cache NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/*.lock') }}
+          restore-keys: |
+            npm-
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
