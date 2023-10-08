@@ -52,16 +52,18 @@ function Settings() {
             defaultValue={localStorage.getItem("ip")}
             variant="outlined"
             onChange={async (event: React.ChangeEvent<HTMLInputElement>) => {
-              await fetch(`http://${event.target.value}/getPlayer`)
-                .finally(() => {
-                  localStorage.setItem("ip", event.target.value);
-                  setError(false);
-                  setAlertText("Valid IP!");
-                })
-                .catch(() => {
-                  setError(true);
-                  setAlertText("Invalid IP!");
-                });
+              await fetch(`http://${event.target.value}/getCoffee`).then(
+                (response) => {
+                  if (response.status === 418) {
+                    localStorage.setItem("ip", event.target.value);
+                    setError(false);
+                    setAlertText("Valid IP!");
+                  } else {
+                    setError(true);
+                    setAlertText("Invalid IP!");
+                  }
+                }
+              );
             }}
           ></TextField>
           <TextField

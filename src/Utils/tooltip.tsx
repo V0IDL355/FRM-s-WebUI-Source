@@ -1,7 +1,7 @@
 import { Card, CardContent, Typography } from '@mui/material';
 
 function tooltip(o) {
-  const payload = o.payload;
+  const {payload} = o;
 
   if (!payload) {
     return null;

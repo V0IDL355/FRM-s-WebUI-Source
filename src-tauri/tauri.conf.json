@@ -4,7 +4,8 @@
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
     "devPath": "http://127.0.0.1:5173",
-    "distDir": "../dist"
+    "distDir": "../dist",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "frm",
@@ -51,7 +52,8 @@
       "csp": null
     },
     "updater": {
-      "active": false
+      "active": false,
+      "endpoints": []
     },
     "windows": [
       {
