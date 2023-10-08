@@ -66,3 +66,16 @@ jobs:
           ls
           mv ./tmp/* www
           rm -rf ./tmp
+
+      - name: Set Target Branch
+        run: |
+          git checkout main
+          
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.email "${{ secrets.EMAIL }}"
+          git config --global user.name "${{ secrets.USERNAME }}"
+          git add www
+          git commit -m "Smth"
+          git push origin main
+
