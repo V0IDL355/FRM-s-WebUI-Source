@@ -13,10 +13,6 @@ jobs:
       - name: Checkout Source Repository
         uses: actions/checkout@v2
 
-      - name: Display Cache Key
-        run: |
-          echo "Cache Key: ${{ steps.cache.outputs.cache-key }}"
-        
       - name: Cache NPM dependencies
         uses: actions/cache@v2
         with:
@@ -30,10 +26,11 @@ jobs:
         with:
           node-version: '14' # Choose the Node.js version you need
 
-      - name: Install Dependencies and Build
-        run: |
-          npm install
-          npm run build
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
 
       - name: Create Zip Archive
         run: |
@@ -52,24 +49,14 @@ jobs:
           repository: GalaxyVOID/FicsitRemoteMonitoring
           ref: main
           path: ficsit-remote-monitoring
+          env:GITHUB_TOKEN: ${{ secrets.PAT_OTHER_REPO }}
 
       - name: Remove Existing Contents in www Folder
         run: |
           cd ficsit-remote-monitoring/www
           rm -rf ./*  # This command will remove all files and directories within www
-
-      - name: Display Contents Before Unzip
-        run: |
-          cd ficsit-remote-monitoring/www
-          ls
-
+          
       - name: Unzip and Replace Contents
         run: |
           cd ficsit-remote-monitoring
-          ls ../
           unzip -oq ../FRM-WebUI.zip -d www
-
-      - name: Display Contents After Unzip
-        run: |
-          cd ficsit-remote-monitoring/www
-          ls
