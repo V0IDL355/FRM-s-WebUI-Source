@@ -52,6 +52,11 @@ jobs:
         env: 
           GITHUB_TOKEN: ${{ secrets.PAT_OTHER_REPO }}
 
+      - name: Set Git Config
+        run: |
+          git config user.email ${{ secrets.EMAIL }}
+          git config user.name ${{ secrets.USERNAME }}
+
       - name: Remove Existing Contents in www Folder
         run: |
           cd ficsit-remote-monitoring/www
