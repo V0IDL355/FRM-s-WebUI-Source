@@ -42,49 +42,26 @@ jobs:
       - name: Deploy to FicsitRemoteMonitoring Repository
         uses: actions/upload-artifact@v2
         with:
-          name: deploy-artifact
+          name: FRM-WebUI
           path: FRM-WebUI.zip
-
-      - name: Checkout FicsitRemoteMonitoring Repository
+          
+      - name: Checkout Target Repository
         uses: actions/checkout@v2
         with:
           repository: GalaxyVOID/FicsitRemoteMonitoring
-          ref: main
-          path: ficsit-remote-monitoring
-        env: 
-          GITHUB_TOKEN: ${{ secrets.PAT }}
 
-      - name: Remove Existing Contents in www Folder
-        run: |
-          cd ficsit-remote-monitoring/www
-          rm -rf ./*  # This command will remove all files and directories within www
+      - name: Download Zip File
+        uses: actions/download-artifact@v2
+        with:
+          name: FRM-WebUI
 
-      - name: Set Git Config
+      - name: Unzip Contents
         run: |
-          git config --global user.email "${{ secrets.EMAIL }}"
-          git config --global user.name "${{ secrets.USERNAME }}"
-          git config --global credential.helper 'store --file ~/.git-credentials'
-          echo "https://${{ secrets.USERNAME }}:${{ secrets.PAT }}" > ~/.git-credentials
-          git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
+          unzip FRM-WebUI.zip -d tmp
+          rm FRM-WebUI.zip
 
-      - name: Unzip and Replace Contents
+      - name: Replace www Folder Contents
         run: |
-          cd ficsit-remote-monitoring/www
-          unzip -oq ../../FRM-WebUI.zip -d .
-
-      - name: Stage Changes
-        run: |
-          cd ficsit-remote-monitoring
-          git add www
-          
-      - name: Commit Changes
-        run: |
-          cd ficsit-remote-monitoring
-          git commit -m "Update www folder"
-      
-      - name: Push Changes
-        run: |
-          cd ficsit-remote-monitoring
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          rm -rf www
+          mv tmp/* www
+          rm tmp
