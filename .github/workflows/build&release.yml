@@ -65,6 +65,7 @@ jobs:
           git config --global user.name "${{ secrets.USERNAME }}"
           git config --global credential.helper 'store --file ~/.git-credentials'
           echo "https://${{ secrets.USERNAME }}:${{ secrets.PAT }}" > ~/.git-credentials
+          git config --unset-all http.https://github.com/.extraheader
 
       - name: Unzip and Replace Contents
         run: |
