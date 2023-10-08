@@ -13,9 +13,7 @@ jobs:
     steps:
       - name: Checkout Source Repository
         uses: actions/checkout@v2
-        env: 
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-
+        
       - name: Cache NPM dependencies
         uses: actions/cache@v2
         with:
