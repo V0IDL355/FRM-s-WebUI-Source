@@ -65,4 +65,4 @@ jobs:
           rm -rf ./www/*
           ls
           mv ./tmp/* www
-          rm ./tmp
+          rm -rf ./tmp
