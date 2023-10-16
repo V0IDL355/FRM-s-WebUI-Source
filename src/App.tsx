@@ -1,14 +1,7 @@
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { Container, CssBaseline, useMediaQuery } from "@mui/material";
+import { Container, CssBaseline } from "@mui/material";
 
 import Home from "./Pages/Home";
-import Map from "./Pages/Map";
-import Power from "./Pages/Power";
-import Drone from "./Pages/Drone";
-import OverallProd from "./Pages/OverallProd";
-import DetailedProd from "./Pages/DetailedProd";
-import Settings from "./Pages/Settings";
-import ResourceSink from "./Pages/ResourceSink";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import React, { FC } from "react";

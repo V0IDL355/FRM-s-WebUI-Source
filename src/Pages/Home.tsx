@@ -9,7 +9,6 @@ import {
   CardActions,
 } from "@mui/material";
 import * as Icons from "@mui/icons-material";
-import Navigation from "./Navigation";
 function Home() {
   const thanksTo = [
     {

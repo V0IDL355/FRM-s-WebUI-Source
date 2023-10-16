@@ -8,8 +8,6 @@ import ResourceSink from "../Pages/ResourceSink";
 import Home from "../Pages/Home";
 
 import * as Icons from "@mui/icons-material";
-import { SvgIconTypeMap } from "@mui/material";
-import { OverridableComponent } from "@mui/material/OverridableComponent";
 
 const pages: Page[] = [
   {

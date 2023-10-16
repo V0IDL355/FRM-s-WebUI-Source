@@ -1,23 +1,15 @@
-import BottomNavigation from "@mui/material/BottomNavigation/BottomNavigation";
-import BottomNavigationAction from "@mui/material/BottomNavigationAction/BottomNavigationAction";
 import Drawer from "@mui/material/Drawer/Drawer";
 import IconButton from "@mui/material/IconButton/IconButton";
 import Paper from "@mui/material/Paper/Paper";
-import ToggleButton from "@mui/material/ToggleButton/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup/ToggleButtonGroup";
 import * as Icons from "@mui/icons-material";
 import { useState } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery/useMediaQuery";
 import { Box, Button, ButtonGroup, useTheme } from "@mui/material";
 
 import pages from "../Utils/pages";
-import { Link } from "react-router-dom";
 
 function Navigation() {
   const theme = useTheme();
-  const [value, setValue] = useState(
-    `${pages.find((page) => page.link === window.location.pathname)?.label}`
-  );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
