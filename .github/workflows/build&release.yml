@@ -81,7 +81,7 @@ jobs:
           git config --global user.name "${{ secrets.USERNAME }}"
           git remote add FicsitRemoteMonitoring git@github.com:GalaxyVOID/FicsitRemoteMonitoring.git
           git add www
-          git commit -m "Smth"
+          git commit -m "Automatic Push"
           git push FicsitRemoteMonitoring main
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
