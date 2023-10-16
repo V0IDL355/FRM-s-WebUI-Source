@@ -3,13 +3,13 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
-    "devPath": "http://127.0.0.1:5173",
+    "devPath": "http://localhost:5173/",
     "distDir": "../dist",
     "withGlobalTauri": true
   },
   "package": {
     "productName": "frm",
-    "version": "0.1.0"
+    "version": "../package.json"
   },
   "tauri": {
     "allowlist": {

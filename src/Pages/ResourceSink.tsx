@@ -8,7 +8,7 @@ import { Alert, LinearProgress, Snackbar } from "@mui/material";
 import api from "../Utils/api";
 
 function ResourceSink() {
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string>("");
   const [data, setData] = React.useState([
     {
       Name: "A.W.E.S.O.M.E.",
@@ -65,7 +65,7 @@ function ResourceSink() {
       try {
         const result: Array<any> = await api.get("/getResourceSink");
         setData(result);
-        setError(null);
+        setError("");
       } catch (error) {
         setError("Error fetching data. Please try again later.");
         setData([
@@ -158,7 +158,7 @@ function ResourceSink() {
         height: "100%",
       }}
     >
-      <Snackbar open={!!error}>
+      <Snackbar open={!!error && error != ""}>
         <Alert
           severity="error"
           sx={{

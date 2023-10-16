@@ -26,6 +26,13 @@ import api from "../Utils/api";
 import { Snackbar, Alert, Container } from "@mui/material";
 import axios from "axios";
 
+const bounds: L.LatLngBoundsExpression = [
+  [-375e3, -324698.832031],
+  [375e3, 425301.832031],
+];
+
+const mapImg = imageOverlay("/img/Map/map.png", bounds);
+
 const playerGroup = new LayerGroup();
 const droneGroup = new LayerGroup();
 const droneStationGroup = new LayerGroup();
@@ -88,11 +95,6 @@ const radar_tower = new Icon({
 const space_elevator = new Icon({
   iconUrl: "/img/Map/space_elevator.png",
 });
-
-const bounds: L.LatLngBoundsExpression = [
-  [-375e3, -324698.832031],
-  [375e3, 425301.832031],
-];
 
 function Map() {
   const [map, setMap] = React.useState<any>(null);
@@ -372,23 +374,24 @@ function Map() {
     return null;
   }
 
-  const layer = imageOverlay("/img/Map/map.png", bounds);
-
   function MainMap() {
-    const usedMap = useMap();
-    setMap(usedMap);
-    layer.addTo(map);
-    playerGroup.addTo(map);
-    playerGroup.addTo(map);
-    droneGroup.addTo(map);
-    droneStationGroup.addTo(map);
-    trainGroup.addTo(map);
-    trainStationGroup.addTo(map);
-    vehicleGroup.addTo(map);
-    radarTowerGroup.addTo(map);
-    powerSlugGroup.addTo(map);
-    truckStationGroup.addTo(map);
-    spaceElevatorGroup.addTo(map);
+    const uMap = useMap();
+    setMap(uMap);
+    try {
+      mapImg.addTo(map);
+      playerGroup.addTo(map);
+      droneGroup.addTo(map);
+      droneStationGroup.addTo(map);
+      trainGroup.addTo(map);
+      trainStationGroup.addTo(map);
+      vehicleGroup.addTo(map);
+      radarTowerGroup.addTo(map);
+      powerSlugGroup.addTo(map);
+      truckStationGroup.addTo(map);
+      spaceElevatorGroup.addTo(map);
+    } catch {
+      return null; // ignore the errors they are harmless
+    }
     return null;
   }
 

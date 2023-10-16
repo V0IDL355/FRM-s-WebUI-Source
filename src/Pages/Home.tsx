@@ -9,6 +9,7 @@ import {
   CardActions,
 } from "@mui/material";
 import * as Icons from "@mui/icons-material";
+import Navigation from "./Navigation";
 function Home() {
   const thanksTo = [
     {
@@ -90,14 +91,10 @@ function Home() {
   ];
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      paddingTop={20}
-    >
+    <Box>
       <ButtonGroup
-        sx={{ position: "absolute", top: "1%", right: "1%" }}
+        fullWidth={true}
+        sx={{ top: 0, right: 0, left: 0, position: "absolute" }}
         aria-label="outlined primary button group"
         variant="outlined"
       >
@@ -126,7 +123,7 @@ function Home() {
         </Button>
       </ButtonGroup>
 
-      <Box>
+      <Box sx={{ top: 100, right: 5, left: 5, position: "absolute" }}>
         <Grid container spacing={2}>
           <Typography
             sx={{
