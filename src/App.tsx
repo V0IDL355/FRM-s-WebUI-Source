@@ -2,7 +2,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Container, CssBaseline } from "@mui/material";
 
 import Home from "./Pages/Home";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import React, { FC } from "react";
 import Navigation from "./Pages/Navigation";
@@ -12,8 +12,8 @@ import pages from "./Utils/pages";
 const theme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#e8a361" },
-    secondary: { main: "#ca6d35" },
+    primary: { main: localStorage.getItem("primaryC") || "#e8a361" },
+    secondary: { main: localStorage.getItem("secondaryC") || "#ca6d35" },
   },
 });
 
@@ -48,20 +48,18 @@ const MainComponent: FC = () => {
       <div className="App">
         <Container>
           <Navigation />
-          <BrowserRouter>
-            <Routes>
-              <Route index element={<Home />} />
-              <Route path="/FRM-s-WebUI-Source" element={<Home />} />
-              <Route path="*" element={<NotFoundPage />} />
-              {pages.map((page) => (
-                <Route
-                  key={page.label}
-                  path={`/${page.link}`}
-                  element={page.node}
-                />
-              ))}
-            </Routes>
-          </BrowserRouter>
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path="/" element={<Home />} />
+            <Route path="*" element={<NotFoundPage />} />
+            {pages.map((page) => (
+              <Route
+                key={page.label}
+                path={`/${page.link}`}
+                element={page.node}
+              />
+            ))}
+          </Routes>
         </Container>
       </div>
     </ThemeProvider>

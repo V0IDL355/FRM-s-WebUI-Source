@@ -13,52 +13,51 @@ const pages: Page[] = [
   {
     node: <Home />,
     icon: <Icons.Home />,
-    link: "/FRM-s-WebUI-Source/Home",
+    link: "home",
     label: "Home",
   },
   {
     node: <ResourceSink />,
     icon: <Icons.Print />,
-    link: "/FRM-s-WebUI-Source/ResourceSink",
+    link: "resourcesink",
     label: "Resource Sink",
   },
   {
     node: <Map />,
     icon: <Icons.Map />,
-    link: "/FRM-s-WebUI-Source/Map",
+    link: "map",
     label: "Map",
   },
   {
     node: <Power />,
     icon: <Icons.Power />,
-    link: "/FRM-s-WebUI-Source/Power",
+    link: "power",
     label: "Power",
   },
   {
     node: <Drone />,
     icon: <Icons.Flight />,
-    link: "/FRM-s-WebUI-Source/Drone",
+    link: "drone",
     label: "Drone",
   },
   {
     node: <OverallProd />,
     icon: <Icons.Factory />,
-    link: "/FRM-s-WebUI-Source/OverallProd",
+    link: "overallprod",
     label: "Overall Prod",
   },
   {
     node: <DetailedProd />,
     icon: <Icons.Factory />,
-    link: "/FRM-s-WebUI-Source/DetailedProd",
+    link: "detailedprod",
     label: "Detailed Prod",
   },
   {
     node: <Settings />,
     icon: <Icons.Settings />,
-    link: "/FRM-s-WebUI-Source/Settings",
+    link: "settings",
     label: "Settings",
   },
-  // Add other pages as needed
 ];
 
 interface Page {

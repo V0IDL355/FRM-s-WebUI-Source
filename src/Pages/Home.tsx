@@ -122,7 +122,15 @@ function Home() {
         </Button>
       </ButtonGroup>
 
-      <Box sx={{ top: 100, right: 5, left: 5, position: "absolute" }}>
+      <Box
+        sx={{
+          top: 100,
+          right: 5,
+          left: 5,
+          paddingBottom: 15,
+          position: "relative",
+        }}
+      >
         <Grid container spacing={2}>
           <Typography
             sx={{

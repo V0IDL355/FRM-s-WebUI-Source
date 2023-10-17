@@ -1,5 +1,5 @@
 import { Container, Typography, Button, Box } from "@mui/material";
-import { Link } from "react-router-dom";
+import pages from "../Utils/pages";
 
 function NotFoundPage() {
   return (
@@ -17,12 +17,7 @@ function NotFoundPage() {
         <Typography variant="h5" paragraph>
           Oops! The page you're looking for doesn't exist.
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          component={Link}
-          to="/FRM-s-WebUI-Source/Home"
-        >
+        <Button variant="contained" color="primary" href={pages[0].link}>
           Go back to home
         </Button>
       </Container>

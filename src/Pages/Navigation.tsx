@@ -5,7 +5,6 @@ import * as Icons from "@mui/icons-material";
 import { useState } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery/useMediaQuery";
 import { Box, Button, ButtonGroup, useTheme } from "@mui/material";
-
 import pages from "../Utils/pages";
 
 function Navigation() {
@@ -27,18 +26,20 @@ function Navigation() {
         zIndex: 10, // Adjust the zIndex as needed
       }}
     >
-      <Paper elevation={10}>
-        <ButtonGroup variant="outlined" fullWidth={true}>
+      <Paper elevation={1}>
+        <ButtonGroup
+          sx={{
+            position: "relative",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "100%",
+          }}
+          variant="outlined"
+          fullWidth={true}
+        >
           {pages.map((page) => (
-            <Button
-              sx={{
-                textAlign: "center",
-                alignContent: "center",
-              }}
-              key={page.label}
-              href={page.link}
-              fullWidth={true}
-            >
+            <Button key={page.label} href={`/#/${page.link}`} fullWidth={true}>
               {page.icon}
               {page.label}
             </Button>
@@ -53,14 +54,10 @@ function Navigation() {
         bottom: 0,
         left: 0,
         right: 0,
-        zIndex: 10, // Adjust the zIndex as needed
+        zIndex: 10,
       }}
     >
-      <Paper
-        sx={{ position: "fixed", left: 0, right: 0, bottom: 0 }}
-        elevation={10}
-        square
-      >
+      <Paper elevation={2} square>
         <IconButton
           edge="start"
           color="primary"
@@ -77,14 +74,14 @@ function Navigation() {
       <Drawer anchor="bottom" open={isDrawerOpen} onClose={toggleDrawer}>
         <ButtonGroup
           sx={{
-            zIndex: 1000,
+            zIndex: 10,
           }}
           color="primary"
           fullWidth={true}
           orientation="vertical"
         >
           {pages.map((page) => (
-            <Button key={page.label} href={page.link} fullWidth={true}>
+            <Button key={page.label} href={`/#/${page.link}`} fullWidth={true}>
               {page.icon}
               {page.label}
             </Button>
