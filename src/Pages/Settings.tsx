@@ -1,66 +1,37 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  Container,
-  InputAdornment,
-  List,
-  Snackbar,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Snackbar from "@mui/material/Snackbar";
+import Typography from "@mui/material/Typography";
+import List from "@mui/material/List";
+import Card from "@mui/material/Card";
+import TextField from "@mui/material/TextField/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import Tooltip from "@mui/material/Tooltip/Tooltip";
+import Button from "@mui/material/Button";
+
+import { signal } from "@preact/signals-react";
 import { MuiColorInput } from "mui-color-input";
-import React from "react";
+
+import { primaryColor, resetDefault, secondaryColor } from "../Utils/setting vars";
+
+const alert = signal({ error: false, message: "" });
 
 function Settings() {
-  const defaultP = "#e8a361";
-  const defaultS = "#ca6d35";
-  const [error, setError] = React.useState<boolean>(false);
-  const [alertText, setAlertText] = React.useState<string>("");
-
-  const [primaryColor, setPValue] = React.useState(
-    localStorage.getItem("primaryC") || defaultP
-  );
-  const [secondaryColor, setSValue] = React.useState(
-    localStorage.getItem("secondaryC") || defaultS
-  );
-
-  function resetDefault() {
-    localStorage.setItem("primaryC", defaultP);
-    setPValue(defaultP);
-
-    localStorage.setItem("secondaryC", defaultS);
-    setSValue(defaultS);
-    window.location.reload();
-  }
-
-  const handleChangeP = (newValue) => {
-    setPValue(newValue);
-    localStorage.setItem("primaryC", newValue);
-  };
-
-  const handleChangeS = (newValue) => {
-    setSValue(newValue);
-    localStorage.setItem("secondaryC", newValue);
-  };
-
   return (
     <Box>
       <Container>
         <Box>
           <Snackbar
-            open={alertText != ""}
+            open={alert.value.message != ""}
             autoHideDuration={6000}
             onClose={() => {
-              setError(false);
-              setAlertText("");
+              alert.value = { error: false, message: "" };
             }}
           >
             <Alert
               variant="filled"
-              severity={error ? "error" : "success"}
+              severity={alert.value.error ? "error" : "success"}
               sx={{
                 width: "50%",
                 position: "fixed",
@@ -68,7 +39,7 @@ function Settings() {
                 left: "25%",
               }}
             >
-              {alertText}
+              {alert.value.message}
             </Alert>
           </Snackbar>
           <Typography sx={{ textAlign: "center", fontSize: "2ex" }}>
@@ -94,14 +65,12 @@ function Settings() {
                       .then((response) => {
                         if (response.status === 418) {
                           localStorage.setItem("ip", event.target.value);
-                          setError(false);
-                          setAlertText("Valid IP!");
+                          alert.value = { error: false, message: "Valid IP!" };
                           return true;
                         }
                       })
                       .catch(() => {
-                        setError(true);
-                        setAlertText("Invalid IP!");
+                        alert.value = { error: true, message: "Invalid IP!" };
                         return false;
                       });
                   }}
@@ -120,11 +89,9 @@ function Settings() {
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     if (parseInt(event.target.value)) {
                       localStorage.setItem("fspeed", event.target.value);
-                      setError(false);
-                      setAlertText("Valid speed!");
+                      alert.value = { error: false, message: "Valid speed!" };
                     } else {
-                      setError(true);
-                      setAlertText("Invalid speed!");
+                      alert.value = { error: true, message: "Invalid speed!" };
                     }
                   }}
                 ></TextField>
@@ -142,11 +109,9 @@ function Settings() {
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     if (parseInt(event.target.value)) {
                       localStorage.setItem("mfspeed", event.target.value);
-                      setError(false);
-                      setAlertText("Valid speed!");
+                      alert.value = { error: false, message: "Valid speed!" };
                     } else {
-                      setError(true);
-                      setAlertText("Invalid speed!");
+                      alert.value = { error: true, message: "Invalid speed!" };
                     }
                   }}
                 ></TextField>
@@ -159,15 +124,21 @@ function Settings() {
                 <Tooltip title="Primary Color">
                   <MuiColorInput
                     fullWidth={true}
-                    value={primaryColor}
-                    onChange={handleChangeP}
+                    value={primaryColor.value}
+                    onChange={(val) => {
+                      localStorage.setItem("primaryC", val);
+                      primaryColor.value = val;
+                    }}
                   />
                 </Tooltip>
                 <Tooltip sx={{ marginTop: "10px" }} title="Secondary Color">
                   <MuiColorInput
                     fullWidth={true}
-                    value={secondaryColor}
-                    onChange={handleChangeS}
+                    value={secondaryColor.value}
+                    onChange={(val) => {
+                      localStorage.setItem("secondaryC", val);
+                      secondaryColor.value = val;
+                    }}
                   />
                 </Tooltip>
                 <Button

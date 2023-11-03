@@ -1,5 +1,8 @@
-import { Container, Typography, Button, Box } from "@mui/material";
+import Box from "@mui/material/Box";
 import pages from "../Utils/pages";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 function NotFoundPage() {
   return (

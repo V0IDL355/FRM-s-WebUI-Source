@@ -2,73 +2,80 @@
 import Box from "@mui/material/Box/Box";
 import coupon from "/img/ResourceSink/coupon.png";
 import Typography from "@mui/material/Typography/Typography";
-import React from "react";
 import Card from "@mui/material/Card/Card";
-import { Alert, LinearProgress, Snackbar } from "@mui/material";
 import api from "../Utils/api";
+import { signal, useSignalEffect } from "@preact/signals-react";
+import { Fragment } from "react";
+import LinearProgress from "@mui/material/LinearProgress";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+
+const alert = signal({ error: false, message: "" });
+const data = signal([
+  {
+    Name: "A.W.E.S.O.M.E.",
+    NumCoupon: Math.floor(Math.random() * 1000000),
+    Percent: Math.random() * 100,
+    GraphPoints: [
+      {
+        Index: 0,
+        value: 33218,
+      },
+      {
+        Index: 1,
+        value: 37837,
+      },
+      {
+        Index: 2,
+        value: 110488,
+      },
+      {
+        Index: 3,
+        value: 34840,
+      },
+      {
+        Index: 4,
+        value: 75563,
+      },
+      {
+        Index: 5,
+        value: 105934,
+      },
+      {
+        Index: 6,
+        value: 32933,
+      },
+      {
+        Index: 7,
+        value: 150480,
+      },
+      {
+        Index: 8,
+        value: 223927,
+      },
+      {
+        Index: 9,
+        value: 148770,
+      },
+    ],
+    PointsToCoupon: 14902634,
+    TotalPoints: 3334555366,
+  },
+]);
 
 function ResourceSink() {
-  const [error, setError] = React.useState<string>("");
-  const [data, setData] = React.useState([
-    {
-      Name: "A.W.E.S.O.M.E.",
-      NumCoupon: Math.round(0),
-      Percent: Math.round(0),
-      GraphPoints: [
-        {
-          Index: 0,
-          value: 0,
-        },
-        {
-          Index: 1,
-          value: 0,
-        },
-        {
-          Index: 2,
-          value: 0,
-        },
-        {
-          Index: 3,
-          value: 0,
-        },
-        {
-          Index: 4,
-          value: 0,
-        },
-        {
-          Index: 5,
-          value: 0,
-        },
-        {
-          Index: 6,
-          value: 0,
-        },
-        {
-          Index: 7,
-          value: 0,
-        },
-        {
-          Index: 8,
-          value: 0,
-        },
-        {
-          Index: 9,
-          value: 0,
-        },
-      ],
-      PointsToCoupon: 0,
-      TotalPoints: 0,
-    },
-  ]);
-  React.useEffect(() => {
+  useSignalEffect(() => {
     const fetchData = async () => {
       try {
         const result: Array<any> = await api.get("/getResourceSink");
-        setData(result);
-        setError("");
+        data.value = result;
+        alert.value = { error: false, message: "" };
       } catch (error) {
-        setError("Error fetching data. Please try again later.");
-        setData([
+        alert.value = {
+          error: false,
+          message: "Error fetching data. Please try again later.",
+        };
+        data.value = [
           {
             Name: "A.W.E.S.O.M.E.",
             NumCoupon: Math.round(Math.floor(Math.random() * 1000000)),
@@ -118,7 +125,7 @@ function ResourceSink() {
             PointsToCoupon: 14902634,
             TotalPoints: 3334555366,
           },
-        ]);
+        ];
       }
     };
 
@@ -131,19 +138,16 @@ function ResourceSink() {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  });
 
   function Progress() {
     return (
-      <React.Fragment>
+      <Fragment>
         <LinearProgress
-          sx={{
-            backgroundColor: "primary",
-          }}
           variant="determinate"
-          value={data[0] ? data[0].Percent : 0}
+          value={data.value[0] ? data.value[0].Percent : 0}
         />
-      </React.Fragment>
+      </Fragment>
     );
   }
 
@@ -158,7 +162,7 @@ function ResourceSink() {
         height: "100%",
       }}
     >
-      <Snackbar open={!!error && error != ""}>
+      <Snackbar open={alert.value.error}>
         <Alert
           severity="error"
           sx={{
@@ -169,7 +173,7 @@ function ResourceSink() {
           }}
           variant="filled"
         >
-          {error}
+          {alert.value.message}
         </Alert>
       </Snackbar>
       <Card
@@ -208,7 +212,7 @@ function ResourceSink() {
               color: "#ffffff",
             }}
           >
-            {data[0] ? data[0].NumCoupon : 0}
+            {data.value[0] ? data.value[0].NumCoupon : 0}
           </Typography>
           {Progress()}
         </Card>

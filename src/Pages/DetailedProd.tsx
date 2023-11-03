@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Alert, Box, Snackbar } from "@mui/material";
-import { GridColDef, DataGrid } from "@mui/x-data-grid";
-import React from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -15,115 +12,122 @@ import tooltip from "../Utils/tooltip";
 import pageOptions from "../Utils/page";
 import api from "../Utils/api";
 
+import { signal, useSignalEffect } from "@preact/signals-react";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+const alert = signal({ error: false, message: "" });
+
+const rows = signal([
+  {
+    Name: "Constructor",
+    ClassName: "Build_ConstructorMk1_C",
+    location: {
+      x: -101321.6640625,
+      y: -130824.890625,
+      z: -1410.1580810546875,
+      rotation: 100,
+    },
+    Recipe: "Actual Snow",
+    RecipeClassName: "",
+    production: [
+      {
+        Name: "Actual Snow",
+        ClassName: "Desc_Snow_C",
+        Amount: 0,
+        CurrentProd: 0,
+        MaxProd: 0,
+        ProdPercent: 0,
+      },
+    ],
+    ingredients: [
+      {
+        Name: "FICSMAS Gift",
+        ClassName: "Desc_Gift_C",
+        Amount: 0,
+        CurrentConsumed: 0,
+        MaxConsumed: 0,
+        ConsPercent: 0,
+      },
+    ],
+    ManuSpeed: 0,
+    IsConfigured: true,
+    IsProducing: false,
+    IsPaused: false,
+    CircuitID: 1,
+    features: {
+      properties: {
+        name: "Constructor",
+        type: "",
+      },
+      geometry: {
+        coordinates: {
+          X: -101321.6640625,
+          Y: -130824.890625,
+          Z: -1410.1580810546875,
+        },
+        type: "Point",
+      },
+    },
+  },
+  {
+    Name: "Constructor",
+    ClassName: "Build_ConstructorMk1_C",
+    location: {
+      x: -91321.6640625,
+      y: -130824.890625,
+      z: -1210.1580810546875,
+      rotation: 100,
+    },
+    Recipe: "Actual Snow D",
+    RecipeClassName: "",
+    production: [
+      {
+        Name: "Actual Snow D",
+        ClassName: "Desc_Snow_C",
+        Amount: 0,
+        CurrentProd: 0,
+        MaxProd: 0,
+        ProdPercent: 0,
+      },
+    ],
+    ingredients: [
+      {
+        Name: "FICSMAS Gift",
+        ClassName: "Desc_Gift_C",
+        Amount: 0,
+        CurrentConsumed: 0,
+        MaxConsumed: 0,
+        ConsPercent: 0,
+      },
+    ],
+    ManuSpeed: 0,
+    IsConfigured: true,
+    IsProducing: false,
+    IsPaused: false,
+    CircuitID: 1,
+    features: {
+      properties: {
+        name: "Constructor",
+        type: "",
+      },
+      geometry: {
+        coordinates: {
+          X: -91321.6640625,
+          Y: -130824.890625,
+          Z: -1210.1580810546875,
+        },
+        type: "Point",
+      },
+    },
+  },
+]);
+const cell = signal({ id: 0 });
+
 const detailProdRows: any[] = [];
 function DetailedProd() {
-  const [error, setError] = React.useState<string | null>(null);
-  const [rows, setRows] = React.useState([
-    {
-      Name: "Constructor",
-      ClassName: "Build_ConstructorMk1_C",
-      location: {
-        x: -101321.6640625,
-        y: -130824.890625,
-        z: -1410.1580810546875,
-        rotation: 100,
-      },
-      Recipe: "Actual Snow",
-      RecipeClassName: "",
-      production: [
-        {
-          Name: "Actual Snow",
-          ClassName: "Desc_Snow_C",
-          Amount: 0,
-          CurrentProd: 0,
-          MaxProd: 0,
-          ProdPercent: 0,
-        },
-      ],
-      ingredients: [
-        {
-          Name: "FICSMAS Gift",
-          ClassName: "Desc_Gift_C",
-          Amount: 0,
-          CurrentConsumed: 0,
-          MaxConsumed: 0,
-          ConsPercent: 0,
-        },
-      ],
-      ManuSpeed: 0,
-      IsConfigured: true,
-      IsProducing: false,
-      IsPaused: false,
-      CircuitID: 1,
-      features: {
-        properties: {
-          name: "Constructor",
-          type: "",
-        },
-        geometry: {
-          coordinates: {
-            X: -101321.6640625,
-            Y: -130824.890625,
-            Z: -1410.1580810546875,
-          },
-          type: "Point",
-        },
-      },
-    },
-    {
-      Name: "Constructor",
-      ClassName: "Build_ConstructorMk1_C",
-      location: {
-        x: -91321.6640625,
-        y: -130824.890625,
-        z: -1210.1580810546875,
-        rotation: 100,
-      },
-      Recipe: "Actual Snow D",
-      RecipeClassName: "",
-      production: [
-        {
-          Name: "Actual Snow D",
-          ClassName: "Desc_Snow_C",
-          Amount: 0,
-          CurrentProd: 0,
-          MaxProd: 0,
-          ProdPercent: 0,
-        },
-      ],
-      ingredients: [
-        {
-          Name: "FICSMAS Gift",
-          ClassName: "Desc_Gift_C",
-          Amount: 0,
-          CurrentConsumed: 0,
-          MaxConsumed: 0,
-          ConsPercent: 0,
-        },
-      ],
-      ManuSpeed: 0,
-      IsConfigured: true,
-      IsProducing: false,
-      IsPaused: false,
-      CircuitID: 1,
-      features: {
-        properties: {
-          name: "Constructor",
-          type: "",
-        },
-        geometry: {
-          coordinates: {
-            X: -91321.6640625,
-            Y: -130824.890625,
-            Z: -1210.1580810546875,
-          },
-          type: "Point",
-        },
-      },
-    },
-  ]);
-  const [cell, setCell] = React.useState(null as any);
-
   const columns: GridColDef[] = [
     { field: "Name", headerName: "Name", width: 150 },
     { field: "Recipe", headerName: "Recipe", width: 150 },
@@ -140,18 +144,21 @@ function DetailedProd() {
     },
   ];
 
-  React.useEffect(() => {
+  useSignalEffect(() => {
     const fetchData = async () => {
       try {
         const result: Array<any> = await api.get("/getFactory");
         result.forEach((data) => {
           data.ManuSpeed = Math.round(data.ManuSpeed);
         });
-        setRows(result);
-        setError(null);
+        rows.value = result;
+        alert.value = { error: false, message: "" };
       } catch (error) {
-        setError("Error fetching data. Please try again later.");
-        setRows([
+        alert.value = {
+          error: false,
+          message: "Error fetching data. Please try again later.",
+        };
+        rows.value = [
           {
             Name: "Constructor",
             ClassName: "Build_ConstructorMk1_C",
@@ -254,7 +261,7 @@ function DetailedProd() {
               },
             },
           },
-        ]);
+        ];
       }
     };
 
@@ -267,9 +274,9 @@ function DetailedProd() {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  });
 
-  for (const row of rows) {
+  for (const row of rows.value) {
     const id = Math.round(row.location.x + row.location.y + row.location.z);
     const index = id;
     if (!detailProdRows[index]) {
@@ -284,8 +291,8 @@ function DetailedProd() {
   }
 
   const detailProdChart: any[] = [];
-  if (detailProdRows[cell?.id]) {
-    for (const row of detailProdRows[cell?.id]) {
+  if (detailProdRows[cell.value.id]) {
+    for (const row of detailProdRows[cell.value.id]) {
       detailProdChart.push({
         ManuSpeed: row.ManuSpeed,
       });
@@ -294,7 +301,7 @@ function DetailedProd() {
 
   return (
     <Box>
-      <Snackbar open={!!error}>
+      <Snackbar open={alert.value.error}>
         <Alert
           severity="error"
           sx={{
@@ -310,7 +317,7 @@ function DetailedProd() {
         </Alert>
       </Snackbar>
       <DataGrid
-        rows={rows}
+        rows={rows.value}
         columns={columns}
         initialState={{
           pagination: {
@@ -323,7 +330,7 @@ function DetailedProd() {
           )
         }
         pageSizeOptions={pageOptions()}
-        onCellClick={setCell}
+        onCellClick={(v) => (cell.value.id = Number(v.id))}
       />
       <Box
         sx={{

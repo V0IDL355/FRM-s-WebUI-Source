@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Alert, Box, Snackbar } from "@mui/material";
-import { GridColDef, DataGrid } from "@mui/x-data-grid";
-import React from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -14,49 +11,56 @@ import {
 import tooltip from "../Utils/tooltip";
 import pageOptions from "../Utils/page";
 import api from "../Utils/api";
+import { signal, useSignalEffect } from "@preact/signals-react";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+
+const alert = signal({ error: false, message: "" });
+const rows = signal([
+  {
+    Name: "Alclad Aluminum Sheet",
+    ClassName: "Desc_AluminumPlate_C",
+    ProdPerMin: "P:0.0/min - C: 0.0/min",
+    ProdPercent: 0,
+    ConsPercent: 0,
+    CurrentProd: 0,
+    MaxProd: 0,
+    CurrentConsumed: 0,
+    MaxConsumed: 89.999992370605469,
+    Type: "Belt",
+  },
+  {
+    Name: "Alumina Solution",
+    ClassName: "Desc_AluminaSolution_C",
+    ProdPerMin: "P:0.0/min - C: 0.0/min",
+    ProdPercent: 0,
+    ConsPercent: 0,
+    CurrentProd: 0,
+    MaxProd: 0,
+    CurrentConsumed: 0,
+    MaxConsumed: 660,
+    Type: "Pipe",
+  },
+  {
+    Name: "Aluminum Casing",
+    ClassName: "Desc_AluminumCasing_C",
+    ProdPerMin: "P:0.0/min - C: 0.0/min",
+    ProdPercent: 0,
+    ConsPercent: 0,
+    CurrentProd: 0,
+    MaxProd: 0,
+    CurrentConsumed: 0,
+    MaxConsumed: 180,
+    Type: "Belt",
+  },
+]);
+const cell = signal({ id: 0 });
 
 const overallProdRows: any[] = [];
 function OverallProd() {
-  const [error, setError] = React.useState<string | null>(null);
-  const [rows, setRows] = React.useState([
-    {
-      Name: "Alclad Aluminum Sheet",
-      ClassName: "Desc_AluminumPlate_C",
-      ProdPerMin: "P:0.0/min - C: 0.0/min",
-      ProdPercent: 0,
-      ConsPercent: 0,
-      CurrentProd: 0,
-      MaxProd: 0,
-      CurrentConsumed: 0,
-      MaxConsumed: 89.999992370605469,
-      Type: "Belt",
-    },
-    {
-      Name: "Alumina Solution",
-      ClassName: "Desc_AluminaSolution_C",
-      ProdPerMin: "P:0.0/min - C: 0.0/min",
-      ProdPercent: 0,
-      ConsPercent: 0,
-      CurrentProd: 0,
-      MaxProd: 0,
-      CurrentConsumed: 0,
-      MaxConsumed: 660,
-      Type: "Pipe",
-    },
-    {
-      Name: "Aluminum Casing",
-      ClassName: "Desc_AluminumCasing_C",
-      ProdPerMin: "P:0.0/min - C: 0.0/min",
-      ProdPercent: 0,
-      ConsPercent: 0,
-      CurrentProd: 0,
-      MaxProd: 0,
-      CurrentConsumed: 0,
-      MaxConsumed: 180,
-      Type: "Belt",
-    },
-  ]);
-  const [cell, setCell] = React.useState(null as any);
   const columns: GridColDef[] = [
     { field: "Name", headerName: "Name", width: 200 },
     { field: "ProdPerMin", headerName: "Prod Per Min", width: 250 },
@@ -78,7 +82,7 @@ function OverallProd() {
     },
   ];
 
-  React.useEffect(() => {
+  useSignalEffect(() => {
     const fetchData = async () => {
       try {
         const result: Array<any> = await api.get("/getProdStats");
@@ -88,11 +92,14 @@ function OverallProd() {
           data.CurrentProd = Math.round(data.CurrentProd);
           data.MaxProd = Math.round(data.MaxProd);
         });
-        setRows(result);
-        setError(null);
+        rows.value = result;
+        alert.value = { error: false, message: "" };
       } catch (error) {
-        setError("Error fetching data. Please try again later.");
-        setRows([
+        alert.value = {
+          error: false,
+          message: "Error fetching data. Please try again later.",
+        };
+        rows.value = [
           {
             Name: "Alclad Aluminum Sheet",
             ClassName: "Desc_AluminumPlate_C",
@@ -129,7 +136,7 @@ function OverallProd() {
             MaxConsumed: 180,
             Type: "Belt",
           },
-        ]);
+        ];
       }
     };
 
@@ -142,9 +149,9 @@ function OverallProd() {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  });
 
-  for (const row of rows) {
+  for (const row of rows.value) {
     if (!overallProdRows[row["Name"]]) {
       overallProdRows[row["Name"]] = [];
     }
@@ -158,8 +165,8 @@ function OverallProd() {
 
   const overallProdChart: any[] = [];
 
-  if (overallProdRows[cell?.id]) {
-    for (const row of overallProdRows[cell?.id]) {
+  if (overallProdRows[cell.value.id]) {
+    for (const row of overallProdRows[cell.value.id]) {
       overallProdChart.push({
         MaxProd: row["MaxProd"],
         CurrentProd: row["CurrentProd"],
@@ -171,7 +178,7 @@ function OverallProd() {
 
   return (
     <Box>
-      <Snackbar open={!!error}>
+      <Snackbar open={alert.value.error}>
         <Alert
           severity="error"
           sx={{
@@ -187,7 +194,7 @@ function OverallProd() {
         </Alert>
       </Snackbar>
       <DataGrid
-        rows={rows}
+        rows={rows.value}
         columns={columns}
         initialState={{
           pagination: {
@@ -196,7 +203,7 @@ function OverallProd() {
         }}
         getRowId={(row) => row.Name}
         pageSizeOptions={pageOptions()}
-        onCellClick={setCell}
+        onCellClick={(v) => (cell.value.id = Number(v.id))}
       />
       <Box
         sx={{

@@ -51,10 +51,6 @@
     "security": {
       "csp": null
     },
-    "updater": {
-      "active": false,
-      "endpoints": []
-    },
     "windows": [
       {
         "fullscreen": false,

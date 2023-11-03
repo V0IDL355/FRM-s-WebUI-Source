@@ -1,18 +1,19 @@
 import Drawer from "@mui/material/Drawer/Drawer";
 import IconButton from "@mui/material/IconButton/IconButton";
 import Paper from "@mui/material/Paper/Paper";
-import * as Icons from "@mui/icons-material";
-import { useState } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery/useMediaQuery";
-import { Box, Button, ButtonGroup, useTheme } from "@mui/material";
 import pages from "../Utils/pages";
+import { Menu } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Button from "@mui/material/Button";
+import useTheme from "@mui/material/styles/useTheme";
+import { signal } from "@preact/signals-react";
+
+const drawer = signal(false);
 
 function Navigation() {
   const theme = useTheme();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const toggleDrawer = () => {
-    setIsDrawerOpen(!isDrawerOpen);
-  };
   const isSmallScreenX = useMediaQuery(theme.breakpoints.down("xs"));
   const isSmallScreenY = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -65,13 +66,21 @@ function Navigation() {
           sx={{
             width: "100%",
           }}
-          onClick={toggleDrawer}
+          onClick={() => {
+            drawer.value = !drawer.value;
+          }}
         >
-          <Icons.Menu />
+          <Menu />
         </IconButton>
       </Paper>
 
-      <Drawer anchor="bottom" open={isDrawerOpen} onClose={toggleDrawer}>
+      <Drawer
+        anchor="bottom"
+        open={drawer.value}
+        onClose={() => {
+          drawer.value = false;
+        }}
+      >
         <ButtonGroup
           sx={{
             zIndex: 10,

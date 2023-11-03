@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Alert, Box, Snackbar } from "@mui/material";
-import { GridColDef, DataGrid } from "@mui/x-data-grid";
-import React from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -14,40 +11,45 @@ import {
 import tooltip from "../Utils/tooltip";
 import pageOptions from "../Utils/page";
 import api from "../Utils/api";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+const alert = signal({ error: false, message: "" });
+const rows = signal([
+  {
+    CircuitID: 58,
+    PowerCapacity: Math.round(0),
+    PowerProduction: Math.round(0),
+    PowerConsumed: Math.round(0),
+    PowerMaxConsumed: Math.round(0),
+    BatteryDifferential: 0,
+    BatteryPercent: 100,
+    BatteryCapacity: 2500,
+    BatteryTimeEmpty: "00:00:00",
+    BatteryTimeFull: "00:00:00",
+    FuseTriggered: false,
+  },
+  {
+    CircuitID: 9,
+    PowerCapacity: Math.round(0),
+    PowerProduction: Math.round(0),
+    PowerConsumed: Math.round(0),
+    PowerMaxConsumed: Math.round(0),
+    BatteryDifferential: 0,
+    BatteryPercent: 100,
+    BatteryCapacity: 2500,
+    BatteryTimeEmpty: "00:00:00",
+    BatteryTimeFull: "00:00:00",
+    FuseTriggered: false,
+  },
+]);
+const cell = signal({ id: 0 });
 
 const powerRows: any[] = [];
 function Power() {
-  const [error, setError] = React.useState<string | null>(null);
-  const [cell, setCell] = React.useState(null as any);
-  const [rows, setRows] = React.useState([
-    {
-      CircuitID: 58,
-      PowerCapacity: Math.round(0),
-      PowerProduction: Math.round(0),
-      PowerConsumed: Math.round(0),
-      PowerMaxConsumed: Math.round(0),
-      BatteryDifferential: 0,
-      BatteryPercent: 100,
-      BatteryCapacity: 2500,
-      BatteryTimeEmpty: "00:00:00",
-      BatteryTimeFull: "00:00:00",
-      FuseTriggered: false,
-    },
-    {
-      CircuitID: 9,
-      PowerCapacity: Math.round(0),
-      PowerProduction: Math.round(0),
-      PowerConsumed: Math.round(0),
-      PowerMaxConsumed: Math.round(0),
-      BatteryDifferential: 0,
-      BatteryPercent: 100,
-      BatteryCapacity: 2500,
-      BatteryTimeEmpty: "00:00:00",
-      BatteryTimeFull: "00:00:00",
-      FuseTriggered: false,
-    },
-  ]);
-
   const columns: GridColDef[] = [
     { field: "CircuitID", headerName: "Circuit ID", width: 80 },
     { field: "PowerCapacity", headerName: "Power Capacity (MW)", width: 150 },
@@ -90,7 +92,7 @@ function Power() {
     },
   ];
 
-  React.useEffect(() => {
+  useSignalEffect(() => {
     const fetchData = async () => {
       try {
         const result: Array<any> = await api.get("/getPower");
@@ -102,11 +104,14 @@ function Power() {
           data.BatteryDifferential = Math.round(data.BatteryDifferential);
           data.BatteryCapacity = Math.round(data.BatteryCapacity);
         });
-        setRows(result);
-        setError(null);
+        rows.value = result;
+        alert.value = { error: false, message: "" };
       } catch (error) {
-        setError("Error fetching data. Please try again later.");
-        setRows([
+        alert.value = {
+          error: false,
+          message: "Error fetching data. Please try again later.",
+        };
+        rows.value = [
           {
             CircuitID: 58,
             PowerCapacity: Math.round(Math.random() * 100),
@@ -133,7 +138,7 @@ function Power() {
             BatteryTimeFull: "00:00:00",
             FuseTriggered: false,
           },
-        ]);
+        ];
       }
     };
 
@@ -146,9 +151,9 @@ function Power() {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  });
 
-  for (const row of rows) {
+  for (const row of rows.value) {
     if (!powerRows[row["CircuitID"]]) {
       powerRows[row["CircuitID"]] = [];
     }
@@ -165,7 +170,7 @@ function Power() {
   for (let v = 0; v < powerRows.length; v++) {
     if (powerRows[v]) {
       for (let i = 0; i < powerRows[v].length; i++) {
-        if (powerRows[v][i]["CircuitID"] === cell?.id) {
+        if (powerRows[v][i]["CircuitID"] === cell.value.id) {
           powerChart.push({
             CircuitID: powerRows[v][i].CircuitID,
             PowerCapacity: powerRows[v][i].PowerCapacity,
@@ -180,7 +185,7 @@ function Power() {
 
   return (
     <Box>
-      <Snackbar open={!!error}>
+      <Snackbar open={alert.value.error}>
         <Alert
           severity="error"
           sx={{
@@ -196,7 +201,7 @@ function Power() {
         </Alert>
       </Snackbar>
       <DataGrid
-        rows={rows}
+        rows={rows.value}
         columns={columns}
         initialState={{
           pagination: {
@@ -205,7 +210,7 @@ function Power() {
         }}
         getRowId={(row) => row.CircuitID}
         pageSizeOptions={pageOptions()}
-        onCellClick={setCell}
+        onCellClick={(v) => (cell.value.id = Number(v.id))}
       />
       <Box
         sx={{

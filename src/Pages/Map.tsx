@@ -8,12 +8,11 @@ import {
   LayerGroup,
   Popup,
   imageOverlay,
+  Point,
 } from "leaflet";
-import React from "react";
 import Typography from "@mui/material/Typography/Typography";
 import Box from "@mui/material/Box/Box";
 import ReactDOMServer from "react-dom/server";
-import * as Icons from "@mui/icons-material";
 import ButtonGroup from "@mui/material/ButtonGroup/ButtonGroup";
 import Button from "@mui/material/Button/Button";
 import FormControlLabel from "@mui/material/FormControlLabel/FormControlLabel";
@@ -23,8 +22,40 @@ import ListItem from "@mui/material/ListItem/ListItem";
 import List from "@mui/material/List/List";
 import CardContent from "@mui/material/CardContent/CardContent";
 import api from "../Utils/api";
-import { Snackbar, Alert, Container } from "@mui/material";
+import { Snackbar, Alert, Container, Paper } from "@mui/material";
 import axios from "axios";
+import { Add, Layers, Remove } from "@mui/icons-material";
+import { signal, useSignalEffect } from "@preact/signals-react";
+import styled from "styled-components";
+import { theme } from "../Utils/theme";
+
+const adjustColor = (hex: string, percent: number): string => {
+  hex = hex.replace("#", "");
+
+  const num = parseInt(hex, 16);
+  let r = (num >> 16) + percent;
+  let g = ((num >> 8) & 255) + percent;
+  let b = (num & 255) + percent;
+
+  r = Math.min(255, Math.max(0, r));
+  g = Math.min(255, Math.max(0, g));
+  b = Math.min(255, Math.max(0, b));
+
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
+};
+
+const PopupWrapper = styled.div`
+  & .leaflet-popup-content-wrapper,
+  & .leaflet-popup-tip {
+    background: ${adjustColor(
+      theme.palette.background.default,
+      10
+    )}; /* Using theme-based primary color */
+    color: ${theme.palette.text.primary};
+    box-shadow: 0 0 14px 2px rgb(255 255 255 / 40%);
+    border-radius: 10px;
+  }
+`;
 
 const bounds: L.LatLngBoundsExpression = [
   [-375e3, -324698.832031],
@@ -96,12 +127,11 @@ const space_elevator = new Icon({
   iconUrl: "/img/Map/space_elevator.png",
 });
 
-function Map() {
-  const [map, setMap] = React.useState<any>(null);
-  const [error, setError] = React.useState<boolean>(false);
-  const [alertText, setAlertText] = React.useState<string>("");
-  const [open, setOpen] = React.useState(false);
+const alert = signal({ error: false, message: "" });
+const open = signal(false);
+const map = signal<any>(null);
 
+function Map() {
   function RealtimeLayerLoader({
     url,
     type,
@@ -111,7 +141,7 @@ function Map() {
     type: string;
     layerGroup: L.LayerGroup;
   }) {
-    React.useEffect(() => {
+    useSignalEffect(() => {
       const cancelTokenSource = axios.CancelToken.source();
       const fetchData = async () => {
         try {
@@ -127,6 +157,7 @@ function Map() {
               const markerLocation = new LatLng(lat, lon);
 
               const marker = new Marker(markerLocation);
+
               let popupContent: () => JSX.Element | null = () => (
                 <Card>
                   <CardContent>
@@ -139,21 +170,18 @@ function Map() {
               switch (type) {
                 case "Player":
                   popupContent = () => (
-                    <Box>
+                    <Paper>
                       <Typography variant="h2" gutterBottom>
                         Player: {getGeo[i].PlayerName}
                       </Typography>
                       <Typography variant="h3" gutterBottom>
                         Ping Time: {getGeo[i].PingTime} ms
                       </Typography>
-                    </Box>
+                    </Paper>
                   );
-
-                  if (getGeo[i].Dead) {
-                    marker.setIcon(player_dead);
-                  } else {
-                    marker.setIcon(player);
-                  }
+                  getGeo[i].Dead
+                    ? marker.setIcon(player_dead)
+                    : marker.setIcon(player);
                   break;
                 case "Drone":
                   popupContent = () => (
@@ -182,7 +210,7 @@ function Map() {
                         Speed: {getGeo[i].ForwardSpeed}
                       </Typography>
                       <Typography variant="h3" gutterBottom>
-                        Derailed: {getGeo[i].Derailed.toString()}
+                        Derailed: {getGeo[i].Derailed ? "✅" : "❌"}
                       </Typography>
                       <Typography variant="h3" gutterBottom>
                         Train Station: {getGeo[i].TrainStation}
@@ -198,7 +226,7 @@ function Map() {
                         Vehicle Type: {getGeo[i].Name}
                       </Typography>
                       <Typography variant="h3" gutterBottom>
-                        AutoPilot: {getGeo[i].AutoPilot.toString()}
+                        AutoPilot: {getGeo[i].AutoPilot ? "✅" : "❌"}
                       </Typography>
                     </Box>
                   );
@@ -325,25 +353,32 @@ function Map() {
                   break;
                 case "Space Elevator":
                   popupContent = () => (
-                    <Box>
+                    <Paper
+                      sx={{
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                      }}
+                      elevation={1}
+                    >
                       <Typography variant="h2" gutterBottom>
                         Name: {getGeo[i].Name}
                       </Typography>
                       <Typography variant="h3" gutterBottom>
-                        Fully Upgraded: {getGeo[i].FullyUpgraded.toString()}
+                        Fully Upgraded: {getGeo[i].FullyUpgraded ? "✅" : "❌"}
                       </Typography>
                       <Typography variant="h3" gutterBottom>
-                        Upgrade Ready: {getGeo[i].UpgradeReady.toString()}
+                        Upgrade Ready: {getGeo[i].UpgradeReady ? "✅" : "❌"}
                       </Typography>
-                    </Box>
+                    </Paper>
                   );
                   marker.setIcon(space_elevator);
                   break;
               }
-              const markerOptions = { autoClose: false };
-              const popup = new Popup(markerOptions).setContent(
+              const popup = new Popup().setContent(
                 ReactDOMServer.renderToString(popupContent() || <></>)
               );
+              popup.options.offset = new Point(32, 25);
               marker.bindPopup(popup);
               layerGroup.addLayer(marker);
             } catch {
@@ -352,8 +387,7 @@ function Map() {
           }
         } catch (error) {
           if (!axios.isCancel(error)) {
-            setError(true);
-            setAlertText(`Error fetching: ${url}`);
+            alert.value = { error: true, message: `Error fetching: ${url}` };
           }
         }
       };
@@ -369,26 +403,25 @@ function Map() {
         cancelTokenSource.cancel();
         clearInterval(newIntervalId);
       };
-    }, [url, type, layerGroup]);
+    });
 
     return null;
   }
 
   function MainMap() {
-    const uMap = useMap();
-    setMap(uMap);
+    map.value = useMap();
     try {
-      mapImg.addTo(map);
-      playerGroup.addTo(map);
-      droneGroup.addTo(map);
-      droneStationGroup.addTo(map);
-      trainGroup.addTo(map);
-      trainStationGroup.addTo(map);
-      vehicleGroup.addTo(map);
-      radarTowerGroup.addTo(map);
-      powerSlugGroup.addTo(map);
-      truckStationGroup.addTo(map);
-      spaceElevatorGroup.addTo(map);
+      mapImg.addTo(map.value);
+      playerGroup.addTo(map.value);
+      droneGroup.addTo(map.value);
+      droneStationGroup.addTo(map.value);
+      trainGroup.addTo(map.value);
+      trainStationGroup.addTo(map.value);
+      vehicleGroup.addTo(map.value);
+      radarTowerGroup.addTo(map.value);
+      powerSlugGroup.addTo(map.value);
+      truckStationGroup.addTo(map.value);
+      spaceElevatorGroup.addTo(map.value);
     } catch {
       return null; // ignore the errors they are harmless
     }
@@ -397,8 +430,8 @@ function Map() {
 
   function handleZoom(type) {
     type == "+"
-      ? map.setZoom(map.getZoom() + 1)
-      : map.setZoom(map.getZoom() - 1);
+      ? map.value.setZoom(map.value.getZoom() + 1)
+      : map.value.setZoom(map.value.getZoom() - 1);
   }
 
   function ZoomCtrl() {
@@ -421,7 +454,7 @@ function Map() {
               handleZoom("+");
             }}
           >
-            <Icons.Add />
+            <Add />
           </Button>
           <Button
             id="-"
@@ -429,7 +462,7 @@ function Map() {
               handleZoom("-");
             }}
           >
-            <Icons.Remove />
+            <Remove />
           </Button>
         </ButtonGroup>
       </Box>
@@ -441,50 +474,58 @@ function Map() {
     const enabled = e.target.checked;
     switch (layer) {
       case "playerGroup":
-        enabled ? playerGroup.addTo(map) : playerGroup.removeFrom(map);
+        enabled
+          ? playerGroup.addTo(map.value)
+          : playerGroup.removeFrom(map.value);
         break;
       case "droneGroup":
-        enabled ? droneGroup.addTo(map) : droneGroup.removeFrom(map);
+        enabled
+          ? droneGroup.addTo(map.value)
+          : droneGroup.removeFrom(map.value);
         break;
       case "droneStationGroup":
         enabled
-          ? droneStationGroup.addTo(map)
-          : droneStationGroup.removeFrom(map);
+          ? droneStationGroup.addTo(map.value)
+          : droneStationGroup.removeFrom(map.value);
         break;
       case "trainGroup":
-        enabled ? trainGroup.addTo(map) : trainGroup.removeFrom(map);
+        enabled
+          ? trainGroup.addTo(map.value)
+          : trainGroup.removeFrom(map.value);
         break;
       case "trainStationGroup":
         enabled
-          ? trainStationGroup.addTo(map)
-          : trainStationGroup.removeFrom(map);
+          ? trainStationGroup.addTo(map.value)
+          : trainStationGroup.removeFrom(map.value);
         break;
       case "vehicleGroup":
-        enabled ? vehicleGroup.addTo(map) : vehicleGroup.removeFrom(map);
+        enabled
+          ? vehicleGroup.addTo(map.value)
+          : vehicleGroup.removeFrom(map.value);
         break;
       case "radarTowerGroup":
-        enabled ? radarTowerGroup.addTo(map) : radarTowerGroup.removeFrom(map);
+        enabled
+          ? radarTowerGroup.addTo(map.value)
+          : radarTowerGroup.removeFrom(map.value);
         break;
       case "powerSlugGroup":
-        enabled ? powerSlugGroup.addTo(map) : powerSlugGroup.removeFrom(map);
+        enabled
+          ? powerSlugGroup.addTo(map.value)
+          : powerSlugGroup.removeFrom(map.value);
         break;
       case "truckStationGroup":
         enabled
-          ? truckStationGroup.addTo(map)
-          : truckStationGroup.removeFrom(map);
+          ? truckStationGroup.addTo(map.value)
+          : truckStationGroup.removeFrom(map.value);
         break;
       case "spaceElevatorGroup":
         enabled
-          ? spaceElevatorGroup.addTo(map)
-          : spaceElevatorGroup.removeFrom(map);
+          ? spaceElevatorGroup.addTo(map.value)
+          : spaceElevatorGroup.removeFrom(map.value);
     }
   }
 
   function LayerCtrl() {
-    const handleClick = () => {
-      setOpen(!open);
-    };
-
     return (
       <Box
         sx={{
@@ -493,8 +534,13 @@ function Map() {
           position: "absolute",
         }}
       >
-        <Button variant="contained" onClick={handleClick}>
-          <Icons.Layers></Icons.Layers>
+        <Button
+          variant="contained"
+          onClick={() => {
+            open.value = !open.value;
+          }}
+        >
+          <Layers />
         </Button>
 
         <Card
@@ -502,7 +548,7 @@ function Map() {
             position: "absolute",
             right: 0,
           }}
-          hidden={!open}
+          hidden={!open.value}
         >
           <List>
             <ListItem>
@@ -644,16 +690,15 @@ function Map() {
   return (
     <Container>
       <Snackbar
-        open={alertText != ""}
+        open={alert.value.error}
         autoHideDuration={6000}
         onClose={() => {
-          setError(false);
-          setAlertText("");
+          alert.value = { error: false, message: "" };
         }}
       >
         <Alert
           variant="filled"
-          severity={error ? "error" : "success"}
+          severity={alert.value.error ? "error" : "success"}
           sx={{
             width: "50%",
             position: "fixed",
@@ -661,79 +706,82 @@ function Map() {
             left: "25%",
           }}
         >
-          {alertText}
+          {alert.value.message}
         </Alert>
       </Snackbar>
       <ZoomCtrl />
       <LayerCtrl />
-      <MapContainer
-        minZoom={-10}
-        maxZoom={18}
-        zoom={-13}
-        center={[0, 0]}
-        crs={CRS.Simple}
-        style={{
-          height: "100vh",
-          width: "100vw",
-          position: "absolute",
-          left: 0,
-          zIndex: -1,
-          background: "#121212",
-        }}
-        zoomControl={false}
-      >
-        <MainMap />
-        <RealtimeLayerLoader
-          url="/getPlayer"
-          type="Player"
-          layerGroup={playerGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getDrone"
-          type="Drone"
-          layerGroup={droneGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getDroneStation"
-          type="Drone Station"
-          layerGroup={droneStationGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getTrains"
-          type="Trains"
-          layerGroup={trainGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getTrainStation"
-          type="Train Stations"
-          layerGroup={trainStationGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getVehicles"
-          type="Vehicles"
-          layerGroup={vehicleGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getRadarTower"
-          type="Radar Tower"
-          layerGroup={radarTowerGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getPowerSlug"
-          type="Power Slug"
-          layerGroup={powerSlugGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getTruckStation"
-          type="Truck Station"
-          layerGroup={truckStationGroup}
-        />
-        <RealtimeLayerLoader
-          url="/getSpaceElevator"
-          type="Space Elevator"
-          layerGroup={spaceElevatorGroup}
-        />
-      </MapContainer>
+      <PopupWrapper>
+        <MapContainer
+          minZoom={-10}
+          maxZoom={18}
+          zoom={-13}
+          center={[0, 0]}
+          crs={CRS.Simple}
+          style={{
+            height: "100vh",
+            width: "100vw",
+            position: "absolute",
+            left: 0,
+            zIndex: -1,
+            background: "#121212",
+            overflow: "hidden",
+          }}
+          zoomControl={false}
+        >
+          <MainMap />
+          <RealtimeLayerLoader
+            url="/getPlayer"
+            type="Player"
+            layerGroup={playerGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getDrone"
+            type="Drone"
+            layerGroup={droneGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getDroneStation"
+            type="Drone Station"
+            layerGroup={droneStationGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getTrains"
+            type="Trains"
+            layerGroup={trainGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getTrainStation"
+            type="Train Stations"
+            layerGroup={trainStationGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getVehicles"
+            type="Vehicles"
+            layerGroup={vehicleGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getRadarTower"
+            type="Radar Tower"
+            layerGroup={radarTowerGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getPowerSlug"
+            type="Power Slug"
+            layerGroup={powerSlugGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getTruckStation"
+            type="Truck Station"
+            layerGroup={truckStationGroup}
+          />
+          <RealtimeLayerLoader
+            url="/getSpaceElevator"
+            type="Space Elevator"
+            layerGroup={spaceElevatorGroup}
+          />
+        </MapContainer>
+      </PopupWrapper>
     </Container>
   );
 }

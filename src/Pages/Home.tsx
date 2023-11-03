@@ -1,14 +1,13 @@
-import {
-  Box,
-  ButtonGroup,
-  Button,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-} from "@mui/material";
-import * as Icons from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import { Link, GitHub, Description, Group } from "@mui/icons-material";
+
 function Home() {
   const thanksTo = [
     {
@@ -103,7 +102,7 @@ function Home() {
               "https://docs.ficsit.app/ficsitremotemonitoring/latest/index.html";
           }}
         >
-          Documentation <Icons.Description />
+          Documentation <Description />
         </Button>
         <Button
           onClick={() => {
@@ -111,14 +110,14 @@ function Home() {
               "https://github.com/porisius/FicsitRemoteMonitoring";
           }}
         >
-          GitHub <Icons.GitHub />
+          GitHub <GitHub />
         </Button>
         <Button
           onClick={() => {
             window.location.href = "https://discord.gg/tv3jbJW3RX";
           }}
         >
-          Discord <Icons.Group />
+          Discord <Group />
         </Button>
       </ButtonGroup>
 
@@ -165,7 +164,7 @@ function Home() {
                     }}
                     size="small"
                   >
-                    <Icons.Link />
+                    <Link />
                   </Button>
                 </CardActions>
               </Card>

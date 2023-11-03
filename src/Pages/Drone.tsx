@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Alert, Box, Snackbar } from "@mui/material";
-import { GridColDef, DataGrid } from "@mui/x-data-grid";
-import React from "react";
+
 import {
   ResponsiveContainer,
   LineChart,
@@ -14,62 +12,71 @@ import {
 import tooltip from "../Utils/tooltip";
 import pageOptions from "../Utils/page";
 import api from "../Utils/api";
+import { signal, useSignalEffect } from "@preact/signals-react";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+
+const alert = signal({ error: false, message: "" });
+
+const rows = signal([
+  {
+    Name: "Drone Port 1",
+    ClassName: "Build_DroneStation_C",
+    location: {
+      x: -30655.7890625,
+      y: 221870.6875,
+      z: -40.6326904296875,
+      rotation: 170,
+    },
+    PairedStation: "Drone Port 2",
+    ConnectedStations: [{ StationName: "Drone Port 2" }],
+    DroneStatus: "En Route",
+    AvgIncRate: Math.round(0),
+    AvgIncStack: Math.round(0),
+    AvgOutRate: Math.round(0),
+    AvgOutStack: Math.round(0),
+    AvgRndTrip: "00:02:39",
+    AvgTotalIncRate: Math.round(0),
+    AvgTotalIncStack: Math.round(0),
+    AvgTotalOutRate: Math.round(0),
+    AvgTotalOutStack: Math.round(0),
+    AvgTripIncAmt: Math.round(0),
+    EstRndTrip: "00:01:50",
+    EstTotalTransRate: Math.round(0),
+    EstTransRate: Math.round(0),
+    EstLatestTotalIncStack: Math.round(0),
+    EstLatestTotalOutStack: Math.round(0),
+    LatestIncStack: Math.round(0),
+    LatestOutStack: Math.round(0),
+    LatestRndTrip: "00:02:39",
+    LatestTripIncAmt: Math.round(0),
+    LatestTripOutAmt: Math.round(0),
+    MedianRndTrip: "00:02:39",
+    MedianTripIncAmt: Math.round(0),
+    MedianTripOutAmt: Math.round(0),
+    EstBatteryRate: Math.round(0),
+    features: {
+      properties: { name: "Drone Port", type: "Drone Station" },
+      geometry: {
+        coordinates: {
+          X: -30655.7890625,
+          Y: 221870.6875,
+          Z: -40.6326904296875,
+        },
+        type: "Point",
+      },
+    },
+  },
+]);
+
+const cell = signal({ id: 0 });
 
 const droneRows: any[] = [];
 
 function Drone() {
-  const [rows, setRows] = React.useState([
-    {
-      Name: "Drone Port 1",
-      ClassName: "Build_DroneStation_C",
-      location: {
-        x: -30655.7890625,
-        y: 221870.6875,
-        z: -40.6326904296875,
-        rotation: 170,
-      },
-      PairedStation: "Drone Port 2",
-      ConnectedStations: [{ StationName: "Drone Port 2" }],
-      DroneStatus: "En Route",
-      AvgIncRate: Math.round(0),
-      AvgIncStack: Math.round(0),
-      AvgOutRate: Math.round(0),
-      AvgOutStack: Math.round(0),
-      AvgRndTrip: "00:02:39",
-      AvgTotalIncRate: Math.round(0),
-      AvgTotalIncStack: Math.round(0),
-      AvgTotalOutRate: Math.round(0),
-      AvgTotalOutStack: Math.round(0),
-      AvgTripIncAmt: Math.round(0),
-      EstRndTrip: "00:01:50",
-      EstTotalTransRate: Math.round(0),
-      EstTransRate: Math.round(0),
-      EstLatestTotalIncStack: Math.round(0),
-      EstLatestTotalOutStack: Math.round(0),
-      LatestIncStack: Math.round(0),
-      LatestOutStack: Math.round(0),
-      LatestRndTrip: "00:02:39",
-      LatestTripIncAmt: Math.round(0),
-      LatestTripOutAmt: Math.round(0),
-      MedianRndTrip: "00:02:39",
-      MedianTripIncAmt: Math.round(0),
-      MedianTripOutAmt: Math.round(0),
-      EstBatteryRate: Math.round(0),
-      features: {
-        properties: { name: "Drone Port", type: "Drone Station" },
-        geometry: {
-          coordinates: {
-            X: -30655.7890625,
-            Y: 221870.6875,
-            Z: -40.6326904296875,
-          },
-          type: "Point",
-        },
-      },
-    },
-  ]);
-  const [cell, setCell] = React.useState(null as any);
-  const [error, setError] = React.useState<string | null>(null);
   const columns: GridColDef[] = [
     { field: "Name", headerName: "Name", width: 130 },
     { field: "PairedStation", headerName: "Paired Station", width: 130 },
@@ -90,7 +97,7 @@ function Drone() {
       width: 150,
     },
   ];
-  React.useEffect(() => {
+  useSignalEffect(() => {
     const fetchData = async () => {
       try {
         const result: Array<any> = await api.get("/getDroneStation");
@@ -99,11 +106,14 @@ function Drone() {
           data.AvgTotalOutRate = Math.round(data.AvgTotalOutRate);
           data.EstBatteryRate = Math.round(data.EstBatteryRate);
         });
-        setRows(result);
-        setError(null);
+        rows.value = result;
+        alert.value = { error: false, message: "" };
       } catch (error) {
-        setError("Error fetching data. Please try again later.");
-        setRows([
+        alert.value = {
+          error: true,
+          message: "Error fetching data. Please try again later.",
+        };
+        rows.value = [
           {
             Name: "Drone Port 1",
             ClassName: "Build_DroneStation_C",
@@ -152,7 +162,7 @@ function Drone() {
               },
             },
           },
-        ]);
+        ];
       }
     };
 
@@ -165,8 +175,8 @@ function Drone() {
     return () => {
       clearInterval(interval);
     };
-  }, []);
-  for (const row of rows) {
+  });
+  for (const row of rows.value) {
     const id = Math.round(
       row["location"]["x"] + row["location"]["y"] + row["location"]["z"]
     );
@@ -183,8 +193,8 @@ function Drone() {
   }
 
   const droneChart: any[] = [];
-  if (droneRows[cell?.id]) {
-    for (const row of droneRows[cell?.id]) {
+  if (droneRows[cell.value.id]) {
+    for (const row of droneRows[cell.value.id]) {
       droneChart.push({
         AvgTotalIncRate: row["AvgTotalIncRate"],
         AvgTotalOutRate: row["AvgTotalOutRate"],
@@ -195,7 +205,7 @@ function Drone() {
 
   return (
     <Box>
-      <Snackbar open={!!error}>
+      <Snackbar open={alert.value.error}>
         <Alert
           severity="error"
           sx={{
@@ -206,11 +216,11 @@ function Drone() {
           }}
           variant="filled"
         >
-          {error}
+          {alert.value.message}
         </Alert>
       </Snackbar>
       <DataGrid
-        rows={rows}
+        rows={rows.value}
         columns={columns}
         initialState={{
           pagination: {
@@ -223,7 +233,7 @@ function Drone() {
           )
         }
         pageSizeOptions={pageOptions()}
-        onCellClick={setCell}
+        onCellClick={(v) => (cell.value.id = Number(v.id))}
       />
       <Box
         sx={{

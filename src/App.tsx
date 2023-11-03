@@ -1,4 +1,4 @@
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import { Container, CssBaseline } from "@mui/material";
 
 import Home from "./Pages/Home";
@@ -8,24 +8,7 @@ import React, { FC } from "react";
 import Navigation from "./Pages/Navigation";
 import NotFoundPage from "./Pages/404";
 import pages from "./Utils/pages";
-
-const theme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: { main: localStorage.getItem("primaryC") || "#e8a361" },
-    secondary: { main: localStorage.getItem("secondaryC") || "#ca6d35" },
-  },
-});
-
-declare module "@mui/material/styles" {
-  interface Palette {
-    coupon: Palette["primary"];
-  }
-
-  interface PaletteOptions {
-    coupon?: PaletteOptions["primary"];
-  }
-}
+import { theme } from "./Utils/theme";
 
 function checkLocalStorage() {
   if (!localStorage.getItem("ip")) {
@@ -47,6 +30,7 @@ const MainComponent: FC = () => {
       <CssBaseline />
       <div className="App">
         <Container>
+
           <Navigation />
           <Routes>
             <Route index element={<Home />} />
