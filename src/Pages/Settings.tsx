@@ -1,19 +1,19 @@
-import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Snackbar from "@mui/material/Snackbar";
-import Typography from "@mui/material/Typography";
-import List from "@mui/material/List";
-import Card from "@mui/material/Card";
-import TextField from "@mui/material/TextField/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
-import Tooltip from "@mui/material/Tooltip/Tooltip";
-import Button from "@mui/material/Button";
+import { MuiColorInput } from 'mui-color-input';
 
-import { signal } from "@preact/signals-react";
-import { MuiColorInput } from "mui-color-input";
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Container from '@mui/material/Container';
+import InputAdornment from '@mui/material/InputAdornment';
+import List from '@mui/material/List';
+import Snackbar from '@mui/material/Snackbar';
+import TextField from '@mui/material/TextField/TextField';
+import Tooltip from '@mui/material/Tooltip/Tooltip';
+import Typography from '@mui/material/Typography';
+import { signal } from '@preact/signals-react';
 
-import { primaryColor, resetDefault, secondaryColor } from "../Utils/setting vars";
+import { primaryColor, resetDefault, secondaryColor } from '../Utils/setting vars';
 
 const alert = signal({ error: false, message: "" });
 

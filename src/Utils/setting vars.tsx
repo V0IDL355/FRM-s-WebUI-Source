@@ -1,4 +1,4 @@
-import { signal } from "@preact/signals-react";
+import { signal } from '@preact/signals-react';
 
 const defaultP = "#e8a361";
 const defaultS = "#ca6d35";

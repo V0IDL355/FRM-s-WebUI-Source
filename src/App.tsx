@@ -1,14 +1,14 @@
-import { ThemeProvider } from "@mui/material/styles";
-import { Container, CssBaseline } from "@mui/material";
+import React, { FC } from 'react';
+import { Route, Routes } from 'react-router-dom';
 
-import Home from "./Pages/Home";
-import { Route, Routes } from "react-router-dom";
+import { Container, CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 
-import React, { FC } from "react";
-import Navigation from "./Pages/Navigation";
-import NotFoundPage from "./Pages/404";
-import pages from "./Utils/pages";
-import { theme } from "./Utils/theme";
+import NotFoundPage from './Pages/404';
+import Home from './Pages/Home';
+import Navigation from './Pages/Navigation';
+import pages from './Utils/pages';
+import { theme } from './Utils/theme';
 
 function checkLocalStorage() {
   if (!localStorage.getItem("ip")) {
@@ -30,7 +30,6 @@ const MainComponent: FC = () => {
       <CssBaseline />
       <div className="App">
         <Container>
-
           <Navigation />
           <Routes>
             <Route index element={<Home />} />

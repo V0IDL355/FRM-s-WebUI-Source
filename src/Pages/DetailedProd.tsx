@@ -1,23 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ResponsiveContainer,
-  LineChart,
-  CartesianGrid,
-  YAxis,
-  Legend,
-  Line,
-  Tooltip,
-} from "recharts";
-import tooltip from "../Utils/tooltip";
-import pageOptions from "../Utils/page";
-import api from "../Utils/api";
+    CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis
+} from 'recharts';
 
-import { signal, useSignalEffect } from "@preact/signals-react";
-import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
-import Box from "@mui/material/Box";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Snackbar from '@mui/material/Snackbar';
+import { DataGrid } from '@mui/x-data-grid/DataGrid/DataGrid';
+import { GridColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
+import { signal, useSignalEffect } from '@preact/signals-react';
+
+import api from '../Utils/api';
+import pageOptions from '../Utils/page';
+import tooltip from '../Utils/tooltip';
+
 const alert = signal({ error: false, message: "" });
 
 const rows = signal([

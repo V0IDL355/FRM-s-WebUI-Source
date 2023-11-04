@@ -1,33 +1,26 @@
+import axios from 'axios';
+import { CRS, Icon, imageOverlay, LatLng, LayerGroup, Marker, Point, Popup } from 'leaflet';
+import ReactDOMServer from 'react-dom/server';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MapContainer, useMap } from "react-leaflet";
-import {
-  CRS,
-  Icon,
-  LatLng,
-  Marker,
-  LayerGroup,
-  Popup,
-  imageOverlay,
-  Point,
-} from "leaflet";
-import Typography from "@mui/material/Typography/Typography";
-import Box from "@mui/material/Box/Box";
-import ReactDOMServer from "react-dom/server";
-import ButtonGroup from "@mui/material/ButtonGroup/ButtonGroup";
-import Button from "@mui/material/Button/Button";
-import FormControlLabel from "@mui/material/FormControlLabel/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox/Checkbox";
-import Card from "@mui/material/Card/Card";
-import ListItem from "@mui/material/ListItem/ListItem";
-import List from "@mui/material/List/List";
-import CardContent from "@mui/material/CardContent/CardContent";
-import api from "../Utils/api";
-import { Snackbar, Alert, Container, Paper } from "@mui/material";
-import axios from "axios";
-import { Add, Layers, Remove } from "@mui/icons-material";
-import { signal, useSignalEffect } from "@preact/signals-react";
-import styled from "styled-components";
-import { theme } from "../Utils/theme";
+import { MapContainer, useMap } from 'react-leaflet';
+import styled from 'styled-components';
+
+import { Add, Layers, Remove } from '@mui/icons-material';
+import { Alert, Container, Paper, Snackbar } from '@mui/material';
+import Box from '@mui/material/Box/Box';
+import Button from '@mui/material/Button/Button';
+import ButtonGroup from '@mui/material/ButtonGroup/ButtonGroup';
+import Card from '@mui/material/Card/Card';
+import CardContent from '@mui/material/CardContent/CardContent';
+import Checkbox from '@mui/material/Checkbox/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel/FormControlLabel';
+import List from '@mui/material/List/List';
+import ListItem from '@mui/material/ListItem/ListItem';
+import Typography from '@mui/material/Typography/Typography';
+import { signal, useSignalEffect } from '@preact/signals-react';
+
+import api from '../Utils/api';
+import { theme } from '../Utils/theme';
 
 const adjustColor = (hex: string, percent: number): string => {
   hex = hex.replace("#", "");

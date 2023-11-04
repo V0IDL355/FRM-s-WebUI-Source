@@ -1,14 +1,16 @@
+import coupon from '/img/ResourceSink/coupon.png';
+import { Fragment } from 'react';
+
+import Alert from '@mui/material/Alert';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Box from "@mui/material/Box/Box";
-import coupon from "/img/ResourceSink/coupon.png";
-import Typography from "@mui/material/Typography/Typography";
-import Card from "@mui/material/Card/Card";
-import api from "../Utils/api";
-import { signal, useSignalEffect } from "@preact/signals-react";
-import { Fragment } from "react";
-import LinearProgress from "@mui/material/LinearProgress";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import Box from '@mui/material/Box/Box';
+import Card from '@mui/material/Card/Card';
+import LinearProgress from '@mui/material/LinearProgress';
+import Snackbar from '@mui/material/Snackbar';
+import Typography from '@mui/material/Typography/Typography';
+import { signal, useSignalEffect } from '@preact/signals-react';
+
+import api from '../Utils/api';
 
 const alert = signal({ error: false, message: "" });
 const data = signal([

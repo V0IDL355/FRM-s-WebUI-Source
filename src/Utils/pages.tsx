@@ -1,13 +1,13 @@
-import Map from "../Pages/Map";
-import Power from "../Pages/Power";
-import Drone from "../Pages/Drone";
-import OverallProd from "../Pages/OverallProd";
-import DetailedProd from "../Pages/DetailedProd";
-import Settings from "../Pages/Settings";
-import ResourceSink from "../Pages/ResourceSink";
-import Home from "../Pages/Home";
+import * as Icons from '@mui/icons-material';
 
-import * as Icons from "@mui/icons-material";
+import DetailedProd from '../Pages/DetailedProd';
+import Drone from '../Pages/Drone';
+import Home from '../Pages/Home';
+import Map from '../Pages/Map';
+import OverallProd from '../Pages/OverallProd';
+import Power from '../Pages/Power';
+import ResourceSink from '../Pages/ResourceSink';
+import Settings from '../Pages/Settings';
 
 const pages: Page[] = [
   {
