@@ -133,3 +133,4 @@ src-tauri/target/*
 .gitignore
 \! Testing/
 .vscode
+test

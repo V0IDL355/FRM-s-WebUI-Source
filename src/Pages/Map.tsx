@@ -1,26 +1,35 @@
-import axios from 'axios';
-import { CRS, Icon, imageOverlay, LatLng, LayerGroup, Marker, Point, Popup } from 'leaflet';
-import ReactDOMServer from 'react-dom/server';
+import axios from "axios";
+import {
+  CRS,
+  Icon,
+  imageOverlay,
+  LatLng,
+  LayerGroup,
+  Marker,
+  Point,
+  Popup,
+} from "leaflet";
+import ReactDOMServer from "react-dom/server";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MapContainer, useMap } from 'react-leaflet';
-import styled from 'styled-components';
+import { MapContainer, useMap } from "react-leaflet";
+import styled from "styled-components";
 
-import { Add, Layers, Remove } from '@mui/icons-material';
-import { Alert, Container, Paper, Snackbar } from '@mui/material';
-import Box from '@mui/material/Box/Box';
-import Button from '@mui/material/Button/Button';
-import ButtonGroup from '@mui/material/ButtonGroup/ButtonGroup';
-import Card from '@mui/material/Card/Card';
-import CardContent from '@mui/material/CardContent/CardContent';
-import Checkbox from '@mui/material/Checkbox/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel/FormControlLabel';
-import List from '@mui/material/List/List';
-import ListItem from '@mui/material/ListItem/ListItem';
-import Typography from '@mui/material/Typography/Typography';
-import { signal, useSignalEffect } from '@preact/signals-react';
+import { Add, Layers, Remove } from "@mui/icons-material";
+import { Alert, Container, Paper, Snackbar } from "@mui/material";
+import Box from "@mui/material/Box/Box";
+import Button from "@mui/material/Button/Button";
+import ButtonGroup from "@mui/material/ButtonGroup/ButtonGroup";
+import Card from "@mui/material/Card/Card";
+import CardContent from "@mui/material/CardContent/CardContent";
+import Checkbox from "@mui/material/Checkbox/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel/FormControlLabel";
+import List from "@mui/material/List/List";
+import ListItem from "@mui/material/ListItem/ListItem";
+import Typography from "@mui/material/Typography/Typography";
+import { signal, useSignalEffect } from "@preact/signals-react";
 
-import api from '../Utils/api';
-import { theme } from '../Utils/theme';
+import api from "../Utils/api";
+import { theme } from "../Utils/theme";
 
 const adjustColor = (hex: string, percent: number): string => {
   hex = hex.replace("#", "");
@@ -297,10 +306,14 @@ function Map() {
                       <Typography variant="h2" gutterBottom>
                         Name: {getGeo[i].Name}
                       </Typography>
-                      <Typography variant="h3" gutterBottom>
-                        X: {getGeo[i].location.X.toString()}
-                        Y: {getGeo[i].location.Y.toString()}
-                        Z: {getGeo[i].location.Z.toString()}
+                      <Typography variant="h3">
+                        X: {getGeo[i].location.X}
+                      </Typography>
+                      <Typography variant="h3">
+                        Y: {getGeo[i].location.Y}
+                      </Typography>
+                      <Typography variant="h3">
+                        Z: {getGeo[i].location.Z}
                       </Typography>
                     </Box>
                   );
@@ -312,10 +325,14 @@ function Map() {
                       <Typography variant="h2" gutterBottom>
                         Slug Type: {getGeo[i].SlugType}
                       </Typography>
-                      <Typography variant="h3" gutterBottom>
-                        X: {getGeo[i].location.x.toString()}
-                        Y: {getGeo[i].location.y.toString()}
-                        Z: {getGeo[i].location.z.toString()}
+                      <Typography variant="h3">
+                        X: {getGeo[i].location.X}
+                      </Typography>
+                      <Typography variant="h3">
+                        Y: {getGeo[i].location.Y}
+                      </Typography>
+                      <Typography variant="h3">
+                        Z: {getGeo[i].location.Z}
                       </Typography>
                     </Box>
                   );
@@ -416,9 +433,9 @@ function Map() {
       truckStationGroup.addTo(map.value);
       spaceElevatorGroup.addTo(map.value);
     } catch {
-      return null; // ignore the errors they are harmless
+      //
     }
-    return null;
+    return <></>;
   }
 
   function handleZoom(type) {

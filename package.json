@@ -30,7 +30,8 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.17.0",
     "recharts": "^2.6.1",
-    "styled-components": "^6.1.0"
+    "styled-components": "^6.1.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.5.6",

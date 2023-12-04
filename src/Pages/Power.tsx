@@ -1,48 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-    CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis
-} from 'recharts';
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis,
+} from "recharts";
 
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Snackbar from '@mui/material/Snackbar';
-import { DataGrid } from '@mui/x-data-grid/DataGrid/DataGrid';
-import { GridColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { signal, useSignalEffect } from '@preact/signals-react';
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
 
-import api from '../Utils/api';
-import pageOptions from '../Utils/page';
-import tooltip from '../Utils/tooltip';
+import api from "../Utils/api";
+import pageOptions from "../Utils/page";
+import tooltip from "../Utils/tooltip";
 
 const alert = signal({ error: false, message: "" });
-const rows = signal([
-  {
-    CircuitID: 58,
-    PowerCapacity: Math.round(0),
-    PowerProduction: Math.round(0),
-    PowerConsumed: Math.round(0),
-    PowerMaxConsumed: Math.round(0),
-    BatteryDifferential: 0,
-    BatteryPercent: 100,
-    BatteryCapacity: 2500,
-    BatteryTimeEmpty: "00:00:00",
-    BatteryTimeFull: "00:00:00",
-    FuseTriggered: false,
-  },
-  {
-    CircuitID: 9,
-    PowerCapacity: Math.round(0),
-    PowerProduction: Math.round(0),
-    PowerConsumed: Math.round(0),
-    PowerMaxConsumed: Math.round(0),
-    BatteryDifferential: 0,
-    BatteryPercent: 100,
-    BatteryCapacity: 2500,
-    BatteryTimeEmpty: "00:00:00",
-    BatteryTimeFull: "00:00:00",
-    FuseTriggered: false,
-  },
-]);
+const rows = signal<any>([]);
 const cell = signal({ id: 0 });
 
 const powerRows: any[] = [];
@@ -100,6 +79,7 @@ function Power() {
           data.PowerMaxConsumed = Math.round(data.PowerMaxConsumed);
           data.BatteryDifferential = Math.round(data.BatteryDifferential);
           data.BatteryCapacity = Math.round(data.BatteryCapacity);
+          data.BatteryPercent = Math.round(data.BatteryPercent);
         });
         rows.value = result;
         alert.value = { error: false, message: "" };
@@ -108,34 +88,6 @@ function Power() {
           error: false,
           message: "Error fetching data. Please try again later.",
         };
-        rows.value = [
-          {
-            CircuitID: 58,
-            PowerCapacity: Math.round(Math.random() * 100),
-            PowerProduction: Math.round(Math.random() * 100),
-            PowerConsumed: Math.round(Math.random() * 100),
-            PowerMaxConsumed: Math.round(Math.random() * 100),
-            BatteryDifferential: 0,
-            BatteryPercent: 100,
-            BatteryCapacity: 2500,
-            BatteryTimeEmpty: "00:00:00",
-            BatteryTimeFull: "00:00:00",
-            FuseTriggered: false,
-          },
-          {
-            CircuitID: 9,
-            PowerCapacity: Math.round(Math.random() * 100),
-            PowerProduction: Math.round(Math.random() * 100),
-            PowerConsumed: Math.round(Math.random() * 100),
-            PowerMaxConsumed: Math.round(Math.random() * 100),
-            BatteryDifferential: 0,
-            BatteryPercent: 100,
-            BatteryCapacity: 2500,
-            BatteryTimeEmpty: "00:00:00",
-            BatteryTimeFull: "00:00:00",
-            FuseTriggered: false,
-          },
-        ];
       }
     };
 

@@ -1,125 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-    CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis
-} from 'recharts';
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis,
+} from "recharts";
 
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Snackbar from '@mui/material/Snackbar';
-import { DataGrid } from '@mui/x-data-grid/DataGrid/DataGrid';
-import { GridColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { signal, useSignalEffect } from '@preact/signals-react';
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
 
-import api from '../Utils/api';
-import pageOptions from '../Utils/page';
-import tooltip from '../Utils/tooltip';
+import api from "../Utils/api";
+import pageOptions from "../Utils/page";
+import tooltip from "../Utils/tooltip";
 
 const alert = signal({ error: false, message: "" });
 
-const rows = signal([
-  {
-    Name: "Constructor",
-    ClassName: "Build_ConstructorMk1_C",
-    location: {
-      x: -101321.6640625,
-      y: -130824.890625,
-      z: -1410.1580810546875,
-      rotation: 100,
-    },
-    Recipe: "Actual Snow",
-    RecipeClassName: "",
-    production: [
-      {
-        Name: "Actual Snow",
-        ClassName: "Desc_Snow_C",
-        Amount: 0,
-        CurrentProd: 0,
-        MaxProd: 0,
-        ProdPercent: 0,
-      },
-    ],
-    ingredients: [
-      {
-        Name: "FICSMAS Gift",
-        ClassName: "Desc_Gift_C",
-        Amount: 0,
-        CurrentConsumed: 0,
-        MaxConsumed: 0,
-        ConsPercent: 0,
-      },
-    ],
-    ManuSpeed: 0,
-    IsConfigured: true,
-    IsProducing: false,
-    IsPaused: false,
-    CircuitID: 1,
-    features: {
-      properties: {
-        name: "Constructor",
-        type: "",
-      },
-      geometry: {
-        coordinates: {
-          X: -101321.6640625,
-          Y: -130824.890625,
-          Z: -1410.1580810546875,
-        },
-        type: "Point",
-      },
-    },
-  },
-  {
-    Name: "Constructor",
-    ClassName: "Build_ConstructorMk1_C",
-    location: {
-      x: -91321.6640625,
-      y: -130824.890625,
-      z: -1210.1580810546875,
-      rotation: 100,
-    },
-    Recipe: "Actual Snow D",
-    RecipeClassName: "",
-    production: [
-      {
-        Name: "Actual Snow D",
-        ClassName: "Desc_Snow_C",
-        Amount: 0,
-        CurrentProd: 0,
-        MaxProd: 0,
-        ProdPercent: 0,
-      },
-    ],
-    ingredients: [
-      {
-        Name: "FICSMAS Gift",
-        ClassName: "Desc_Gift_C",
-        Amount: 0,
-        CurrentConsumed: 0,
-        MaxConsumed: 0,
-        ConsPercent: 0,
-      },
-    ],
-    ManuSpeed: 0,
-    IsConfigured: true,
-    IsProducing: false,
-    IsPaused: false,
-    CircuitID: 1,
-    features: {
-      properties: {
-        name: "Constructor",
-        type: "",
-      },
-      geometry: {
-        coordinates: {
-          X: -91321.6640625,
-          Y: -130824.890625,
-          Z: -1210.1580810546875,
-        },
-        type: "Point",
-      },
-    },
-  },
-]);
+const rows = signal<any>([]);
 const cell = signal({ id: 0 });
 
 const detailProdRows: any[] = [];
@@ -154,110 +57,6 @@ function DetailedProd() {
           error: false,
           message: "Error fetching data. Please try again later.",
         };
-        rows.value = [
-          {
-            Name: "Constructor",
-            ClassName: "Build_ConstructorMk1_C",
-            location: {
-              x: -101321.6640625,
-              y: -130824.890625,
-              z: -1410.1580810546875,
-              rotation: 100,
-            },
-            Recipe: "Actual Snow",
-            RecipeClassName: "",
-            production: [
-              {
-                Name: "Actual Snow",
-                ClassName: "Desc_Snow_C",
-                Amount: Math.round(Math.random() * 100),
-                CurrentProd: Math.round(Math.random() * 100),
-                MaxProd: Math.round(Math.random() * 100),
-                ProdPercent: 0,
-              },
-            ],
-            ingredients: [
-              {
-                Name: "FICSMAS Gift",
-                ClassName: "Desc_Gift_C",
-                Amount: Math.round(Math.random() * 100),
-                CurrentConsumed: Math.round(Math.random() * 100),
-                MaxConsumed: Math.round(Math.random() * 100),
-                ConsPercent: 0,
-              },
-            ],
-            ManuSpeed: Math.round(Math.random() * 100),
-            IsConfigured: true,
-            IsProducing: false,
-            IsPaused: false,
-            CircuitID: 1,
-            features: {
-              properties: {
-                name: "Constructor",
-                type: "",
-              },
-              geometry: {
-                coordinates: {
-                  X: -101321.6640625,
-                  Y: -130824.890625,
-                  Z: -1410.1580810546875,
-                },
-                type: "Point",
-              },
-            },
-          },
-          {
-            Name: "Constructor",
-            ClassName: "Build_ConstructorMk1_C",
-            location: {
-              x: -91321.6640625,
-              y: -130824.890625,
-              z: -1210.1580810546875,
-              rotation: 100,
-            },
-            Recipe: "Actual Snow D",
-            RecipeClassName: "",
-            production: [
-              {
-                Name: "Actual Snow D",
-                ClassName: "Desc_Snow_C",
-                Amount: Math.round(Math.random() * 100),
-                CurrentProd: Math.round(Math.random() * 100),
-                MaxProd: Math.round(Math.random() * 100),
-                ProdPercent: 0,
-              },
-            ],
-            ingredients: [
-              {
-                Name: "FICSMAS Gift",
-                ClassName: "Desc_Gift_C",
-                Amount: Math.round(Math.random() * 100),
-                CurrentConsumed: Math.round(Math.random() * 100),
-                MaxConsumed: Math.round(Math.random() * 100),
-                ConsPercent: 0,
-              },
-            ],
-            ManuSpeed: Math.round(Math.random() * 100),
-            IsConfigured: true,
-            IsProducing: false,
-            IsPaused: false,
-            CircuitID: 1,
-            features: {
-              properties: {
-                name: "Constructor",
-                type: "",
-              },
-              geometry: {
-                coordinates: {
-                  X: -91321.6640625,
-                  Y: -130824.890625,
-                  Z: -1210.1580810546875,
-                },
-                type: "Point",
-              },
-            },
-          },
-        ];
       }
     };
 

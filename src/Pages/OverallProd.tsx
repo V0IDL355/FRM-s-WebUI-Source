@@ -1,59 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-    CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis
-} from 'recharts';
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis,
+} from "recharts";
 
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Snackbar from '@mui/material/Snackbar';
-import { DataGrid } from '@mui/x-data-grid/DataGrid/DataGrid';
-import { GridColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { signal, useSignalEffect } from '@preact/signals-react';
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
 
-import api from '../Utils/api';
-import pageOptions from '../Utils/page';
-import tooltip from '../Utils/tooltip';
-
+import api from "../Utils/api";
+import pageOptions from "../Utils/page";
+import tooltip from "../Utils/tooltip";
+import { v5 as uuidv5 } from "uuid";
 const alert = signal({ error: false, message: "" });
-const rows = signal([
-  {
-    Name: "Alclad Aluminum Sheet",
-    ClassName: "Desc_AluminumPlate_C",
-    ProdPerMin: "P:0.0/min - C: 0.0/min",
-    ProdPercent: 0,
-    ConsPercent: 0,
-    CurrentProd: 0,
-    MaxProd: 0,
-    CurrentConsumed: 0,
-    MaxConsumed: 89.999992370605469,
-    Type: "Belt",
-  },
-  {
-    Name: "Alumina Solution",
-    ClassName: "Desc_AluminaSolution_C",
-    ProdPerMin: "P:0.0/min - C: 0.0/min",
-    ProdPercent: 0,
-    ConsPercent: 0,
-    CurrentProd: 0,
-    MaxProd: 0,
-    CurrentConsumed: 0,
-    MaxConsumed: 660,
-    Type: "Pipe",
-  },
-  {
-    Name: "Aluminum Casing",
-    ClassName: "Desc_AluminumCasing_C",
-    ProdPerMin: "P:0.0/min - C: 0.0/min",
-    ProdPercent: 0,
-    ConsPercent: 0,
-    CurrentProd: 0,
-    MaxProd: 0,
-    CurrentConsumed: 0,
-    MaxConsumed: 180,
-    Type: "Belt",
-  },
-]);
-const cell = signal({ id: 0 });
+const rows = signal<any>([]);
+const cell = signal({ id: "" });
 
 const overallProdRows: any[] = [];
 function OverallProd() {
@@ -95,44 +64,6 @@ function OverallProd() {
           error: false,
           message: "Error fetching data. Please try again later.",
         };
-        rows.value = [
-          {
-            Name: "Alclad Aluminum Sheet",
-            ClassName: "Desc_AluminumPlate_C",
-            ProdPerMin: "P:0.0/min - C: 0.0/min",
-            ProdPercent: Math.round(Math.random() * 100),
-            ConsPercent: Math.round(Math.random() * 100),
-            CurrentProd: Math.round(Math.random() * 100),
-            MaxProd: Math.round(Math.random() * 100),
-            CurrentConsumed: 0,
-            MaxConsumed: 89.999992370605469,
-            Type: "Belt",
-          },
-          {
-            Name: "Alumina Solution",
-            ClassName: "Desc_AluminaSolution_C",
-            ProdPerMin: "P:0.0/min - C: 0.0/min",
-            ProdPercent: Math.round(Math.random() * 100),
-            ConsPercent: Math.round(Math.random() * 100),
-            CurrentProd: Math.round(Math.random() * 100),
-            MaxProd: Math.round(Math.random() * 100),
-            CurrentConsumed: 0,
-            MaxConsumed: 660,
-            Type: "Pipe",
-          },
-          {
-            Name: "Aluminum Casing",
-            ClassName: "Desc_AluminumCasing_C",
-            ProdPerMin: "P:0.0/min - C: 0.0/min",
-            ProdPercent: Math.round(Math.random() * 100),
-            ConsPercent: Math.round(Math.random() * 100),
-            CurrentProd: Math.round(Math.random() * 100),
-            MaxProd: Math.round(Math.random() * 100),
-            CurrentConsumed: 0,
-            MaxConsumed: 180,
-            Type: "Belt",
-          },
-        ];
       }
     };
 
@@ -148,19 +79,19 @@ function OverallProd() {
   });
 
   for (const row of rows.value) {
-    if (!overallProdRows[row["Name"]]) {
-      overallProdRows[row["Name"]] = [];
+    const id = uuidv5(row["Name"] + row["ClassName"] + row["Type"], uuidv5.URL);
+    if (!overallProdRows[id]) {
+      overallProdRows[id] = [];
     }
 
-    if (overallProdRows[row["Name"]].length >= 10) {
-      overallProdRows[row["Name"]].shift();
+    if (overallProdRows[id].length >= 10) {
+      overallProdRows[id].shift();
     } else {
-      overallProdRows[row["Name"]].push(row);
+      overallProdRows[id].push(row);
     }
   }
 
   const overallProdChart: any[] = [];
-
   if (overallProdRows[cell.value.id]) {
     for (const row of overallProdRows[cell.value.id]) {
       overallProdChart.push({
@@ -199,7 +130,12 @@ function OverallProd() {
         }}
         getRowId={(row) => row.Name}
         pageSizeOptions={pageOptions()}
-        onCellClick={(v) => (cell.value.id = Number(v.id))}
+        onCellClick={(v) =>
+          (cell.value.id = uuidv5(
+            v.row["Name"] + v.row["ClassName"] + v.row["Type"],
+            uuidv5.URL
+          ))
+        }
       />
       <Box
         sx={{

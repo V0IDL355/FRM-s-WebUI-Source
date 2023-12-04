@@ -1,12 +1,12 @@
-import { Description, GitHub, Group, Link } from '@mui/icons-material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
+import { Description, GitHub, Group, Link } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 
 function Home() {
   const thanksTo = [
@@ -153,7 +153,11 @@ function Home() {
               marginBottom={1}
             >
               <Card>
-                <CardContent>
+                <CardContent
+                  sx={{
+                    animation: "linear 1s",
+                  }}
+                >
                   <Typography variant="h6">{thanks.name}</Typography>
                   <Typography variant="body2">{thanks.reason}</Typography>
                 </CardContent>

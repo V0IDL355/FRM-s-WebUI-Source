@@ -1,19 +1,24 @@
-import { MuiColorInput } from 'mui-color-input';
+import { MuiColorInput } from "mui-color-input";
 
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import Container from '@mui/material/Container';
-import InputAdornment from '@mui/material/InputAdornment';
-import List from '@mui/material/List';
-import Snackbar from '@mui/material/Snackbar';
-import TextField from '@mui/material/TextField/TextField';
-import Tooltip from '@mui/material/Tooltip/Tooltip';
-import Typography from '@mui/material/Typography';
-import { signal } from '@preact/signals-react';
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import Container from "@mui/material/Container";
+import InputAdornment from "@mui/material/InputAdornment";
+import List from "@mui/material/List";
+import Snackbar from "@mui/material/Snackbar";
+import TextField from "@mui/material/TextField/TextField";
+import Tooltip from "@mui/material/Tooltip/Tooltip";
+import Typography from "@mui/material/Typography";
+import { signal } from "@preact/signals-react";
 
-import { primaryColor, resetDefault, secondaryColor } from '../Utils/setting vars';
+import {
+  primaryColor,
+  resetDefault,
+  secondaryColor,
+} from "../Utils/setting vars";
+import { connected } from "../Utils/utils";
 
 const alert = signal({ error: false, message: "" });
 
@@ -61,18 +66,10 @@ function Settings() {
                   onChange={async (
                     event: React.ChangeEvent<HTMLInputElement>
                   ) => {
-                    await fetch(`http://${event.target.value}/getCoffee`)
-                      .then((response) => {
-                        if (response.status === 418) {
-                          localStorage.setItem("ip", event.target.value);
-                          alert.value = { error: false, message: "Valid IP!" };
-                          return true;
-                        }
-                      })
-                      .catch(() => {
-                        alert.value = { error: true, message: "Invalid IP!" };
-                        return false;
-                      });
+                    const connectStatus = await connected(event.target.value);
+                    alert.value = connectStatus
+                      ? { error: false, message: "Valid IP!" }
+                      : { error: true, message: "Invalid IP!" };
                   }}
                 ></TextField>
                 <TextField

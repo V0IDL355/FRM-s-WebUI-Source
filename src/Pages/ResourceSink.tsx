@@ -1,69 +1,19 @@
-import coupon from '/img/ResourceSink/coupon.png';
-import { Fragment } from 'react';
+import coupon from "/img/ResourceSink/coupon.png";
+import { Fragment } from "react";
 
-import Alert from '@mui/material/Alert';
+import Alert from "@mui/material/Alert";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Box from '@mui/material/Box/Box';
-import Card from '@mui/material/Card/Card';
-import LinearProgress from '@mui/material/LinearProgress';
-import Snackbar from '@mui/material/Snackbar';
-import Typography from '@mui/material/Typography/Typography';
-import { signal, useSignalEffect } from '@preact/signals-react';
+import Box from "@mui/material/Box/Box";
+import Card from "@mui/material/Card/Card";
+import LinearProgress from "@mui/material/LinearProgress";
+import Snackbar from "@mui/material/Snackbar";
+import Typography from "@mui/material/Typography/Typography";
+import { signal, useSignalEffect } from "@preact/signals-react";
 
-import api from '../Utils/api';
+import api from "../Utils/api";
 
 const alert = signal({ error: false, message: "" });
-const data = signal([
-  {
-    Name: "A.W.E.S.O.M.E.",
-    NumCoupon: Math.floor(Math.random() * 1000000),
-    Percent: Math.random() * 100,
-    GraphPoints: [
-      {
-        Index: 0,
-        value: 33218,
-      },
-      {
-        Index: 1,
-        value: 37837,
-      },
-      {
-        Index: 2,
-        value: 110488,
-      },
-      {
-        Index: 3,
-        value: 34840,
-      },
-      {
-        Index: 4,
-        value: 75563,
-      },
-      {
-        Index: 5,
-        value: 105934,
-      },
-      {
-        Index: 6,
-        value: 32933,
-      },
-      {
-        Index: 7,
-        value: 150480,
-      },
-      {
-        Index: 8,
-        value: 223927,
-      },
-      {
-        Index: 9,
-        value: 148770,
-      },
-    ],
-    PointsToCoupon: 14902634,
-    TotalPoints: 3334555366,
-  },
-]);
+const data = signal<any>([]);
 
 function ResourceSink() {
   useSignalEffect(() => {
@@ -77,57 +27,6 @@ function ResourceSink() {
           error: false,
           message: "Error fetching data. Please try again later.",
         };
-        data.value = [
-          {
-            Name: "A.W.E.S.O.M.E.",
-            NumCoupon: Math.round(Math.floor(Math.random() * 1000000)),
-            Percent: Math.round(Math.random() * 100),
-            GraphPoints: [
-              {
-                Index: 0,
-                value: 33218,
-              },
-              {
-                Index: 1,
-                value: 37837,
-              },
-              {
-                Index: 2,
-                value: 110488,
-              },
-              {
-                Index: 3,
-                value: 34840,
-              },
-              {
-                Index: 4,
-                value: 75563,
-              },
-              {
-                Index: 5,
-                value: 105934,
-              },
-              {
-                Index: 6,
-                value: 32933,
-              },
-              {
-                Index: 7,
-                value: 150480,
-              },
-              {
-                Index: 8,
-                value: 223927,
-              },
-              {
-                Index: 9,
-                value: 148770,
-              },
-            ],
-            PointsToCoupon: 14902634,
-            TotalPoints: 3334555366,
-          },
-        ];
       }
     };
 

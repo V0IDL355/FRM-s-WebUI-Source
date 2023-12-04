@@ -1,72 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
-    CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis
-} from 'recharts';
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis,
+} from "recharts";
 
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Snackbar from '@mui/material/Snackbar';
-import { DataGrid } from '@mui/x-data-grid/DataGrid/DataGrid';
-import { GridColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { signal, useSignalEffect } from '@preact/signals-react';
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
 
-import api from '../Utils/api';
-import pageOptions from '../Utils/page';
-import tooltip from '../Utils/tooltip';
+import api from "../Utils/api";
+import pageOptions from "../Utils/page";
+import tooltip from "../Utils/tooltip";
 
 const alert = signal({ error: false, message: "" });
 
-const rows = signal([
-  {
-    Name: "Drone Port 1",
-    ClassName: "Build_DroneStation_C",
-    location: {
-      x: -30655.7890625,
-      y: 221870.6875,
-      z: -40.6326904296875,
-      rotation: 170,
-    },
-    PairedStation: "Drone Port 2",
-    ConnectedStations: [{ StationName: "Drone Port 2" }],
-    DroneStatus: "En Route",
-    AvgIncRate: Math.round(0),
-    AvgIncStack: Math.round(0),
-    AvgOutRate: Math.round(0),
-    AvgOutStack: Math.round(0),
-    AvgRndTrip: "00:02:39",
-    AvgTotalIncRate: Math.round(0),
-    AvgTotalIncStack: Math.round(0),
-    AvgTotalOutRate: Math.round(0),
-    AvgTotalOutStack: Math.round(0),
-    AvgTripIncAmt: Math.round(0),
-    EstRndTrip: "00:01:50",
-    EstTotalTransRate: Math.round(0),
-    EstTransRate: Math.round(0),
-    EstLatestTotalIncStack: Math.round(0),
-    EstLatestTotalOutStack: Math.round(0),
-    LatestIncStack: Math.round(0),
-    LatestOutStack: Math.round(0),
-    LatestRndTrip: "00:02:39",
-    LatestTripIncAmt: Math.round(0),
-    LatestTripOutAmt: Math.round(0),
-    MedianRndTrip: "00:02:39",
-    MedianTripIncAmt: Math.round(0),
-    MedianTripOutAmt: Math.round(0),
-    EstBatteryRate: Math.round(0),
-    features: {
-      properties: { name: "Drone Port", type: "Drone Station" },
-      geometry: {
-        coordinates: {
-          X: -30655.7890625,
-          Y: 221870.6875,
-          Z: -40.6326904296875,
-        },
-        type: "Point",
-      },
-    },
-  },
-]);
+const rows = signal<any>([]);
 
 const cell = signal({ id: 0 });
 
@@ -76,22 +33,10 @@ function Drone() {
   const columns: GridColDef[] = [
     { field: "Name", headerName: "Name", width: 130 },
     { field: "PairedStation", headerName: "Paired Station", width: 130 },
-    {
-      field: "DroneStatus",
-      headerName: "Drone Status",
-      width: 130,
-    },
+    { field: "DroneStatus", headerName: "Drone Status", width: 130 },
     { field: "AvgTotalIncRate", headerName: "Avg Total Inc Rate", width: 150 },
-    {
-      field: "AvgTotalOutRate",
-      headerName: "Avg Total Out Rate",
-      width: 150,
-    },
-    {
-      field: "EstBatteryRate",
-      headerName: "Est Battery Rate",
-      width: 150,
-    },
+    { field: "AvgTotalOutRate", headerName: "Avg Total Out Rate", width: 150 },
+    { field: "EstBatteryRate", headerName: "Est Battery Rate", width: 150 },
   ];
   useSignalEffect(() => {
     const fetchData = async () => {
@@ -109,56 +54,6 @@ function Drone() {
           error: true,
           message: "Error fetching data. Please try again later.",
         };
-        rows.value = [
-          {
-            Name: "Drone Port 1",
-            ClassName: "Build_DroneStation_C",
-            location: {
-              x: -30655.7890625,
-              y: 221870.6875,
-              z: -40.6326904296875,
-              rotation: 170,
-            },
-            PairedStation: "Drone Port 2",
-            ConnectedStations: [{ StationName: "Drone Port 2" }],
-            DroneStatus: "En Route",
-            AvgIncRate: Math.round(Math.random() * 100),
-            AvgIncStack: Math.round(Math.random() * 100),
-            AvgOutRate: Math.round(Math.random() * 100),
-            AvgOutStack: Math.round(Math.random() * 100),
-            AvgRndTrip: "00:02:39",
-            AvgTotalIncRate: Math.round(Math.random() * 100),
-            AvgTotalIncStack: Math.round(Math.random() * 100),
-            AvgTotalOutRate: Math.round(Math.random() * 100),
-            AvgTotalOutStack: Math.round(Math.random() * 100),
-            AvgTripIncAmt: Math.round(Math.random() * 100),
-            EstRndTrip: "00:01:50",
-            EstTotalTransRate: Math.round(Math.random() * 100),
-            EstTransRate: Math.round(Math.random() * 100),
-            EstLatestTotalIncStack: Math.round(Math.random() * 100),
-            EstLatestTotalOutStack: Math.round(Math.random() * 100),
-            LatestIncStack: Math.round(Math.random() * 100),
-            LatestOutStack: Math.round(Math.random() * 100),
-            LatestRndTrip: "00:02:39",
-            LatestTripIncAmt: Math.round(Math.random() * 100),
-            LatestTripOutAmt: Math.round(Math.random() * 100),
-            MedianRndTrip: "00:02:39",
-            MedianTripIncAmt: Math.round(Math.random() * 100),
-            MedianTripOutAmt: Math.round(Math.random() * 100),
-            EstBatteryRate: Math.round(Math.random() * 100),
-            features: {
-              properties: { name: "Drone Port", type: "Drone Station" },
-              geometry: {
-                coordinates: {
-                  X: -30655.7890625,
-                  Y: 221870.6875,
-                  Z: -40.6326904296875,
-                },
-                type: "Point",
-              },
-            },
-          },
-        ];
       }
     };
 
