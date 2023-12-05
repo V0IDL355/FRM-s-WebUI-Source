@@ -117,10 +117,6 @@ const drone_station = new Icon({
   iconUrl: "/img/Map/drone_station.png",
 });
 
-const power_slug = new Icon({
-  iconUrl: "/img/Map/power_slug.png",
-});
-
 const radar_tower = new Icon({
   iconUrl: "/img/Map/radar_tower.png",
 });
@@ -174,10 +170,17 @@ function Map() {
                   popupContent = () => (
                     <Paper>
                       <Typography variant="h2" gutterBottom>
-                        Player: {getGeo[i].PlayerName}
+                        Player:{" "}
+                        {getGeo[i].PlayerName
+                          ? getGeo[i].PlayerName
+                          : "Unknown/Offline"}
                       </Typography>
                       <Typography variant="h3" gutterBottom>
-                        Ping Time: {getGeo[i].PingTime} ms
+                        Ping Time:{" "}
+                        {getGeo[i].PlayerName
+                          ? getGeo[i].PingTime
+                          : "Unknown/Offline"}{" "}
+                        ms
                       </Typography>
                     </Paper>
                   );
@@ -326,17 +329,27 @@ function Map() {
                         Slug Type: {getGeo[i].SlugType}
                       </Typography>
                       <Typography variant="h3">
-                        X: {getGeo[i].location.X}
+                        X: {getGeo[i].features.geometry.coordinates.X}
                       </Typography>
                       <Typography variant="h3">
-                        Y: {getGeo[i].location.Y}
+                        Y: {getGeo[i].features.geometry.coordinates.Y}
                       </Typography>
                       <Typography variant="h3">
-                        Z: {getGeo[i].location.Z}
+                        Z: {getGeo[i].features.geometry.coordinates.Z}
                       </Typography>
                     </Box>
                   );
-                  marker.setIcon(power_slug);
+                  marker.setIcon(
+                    new Icon({
+                      iconUrl: `http://${localStorage.getItem(
+                        "ip"
+                      )}/Icons/${String(getGeo[i].ClassName).replace(
+                        "BP",
+                        "Desc"
+                      )}.png`,
+                      iconSize: [32, 32],
+                    })
+                  );
                   break;
                 case "Truck Station":
                   popupContent = () => (
@@ -348,10 +361,10 @@ function Map() {
                         LoadMode:{" "}
                         {(() => {
                           switch (getGeo[i].LoadMode) {
-                            case "Load":
-                              return <span>Load ⬆️</span>;
-                            case "Unload":
-                              return <span>Unload ⬇️</span>;
+                            case "Loading":
+                              return <span>Loading ⬆️</span>;
+                            case "Unloading":
+                              return <span>Unloading ⬇️</span>;
                             default:
                               return null;
                           }
