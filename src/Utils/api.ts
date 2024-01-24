@@ -1,9 +1,8 @@
-import axios from 'axios';
+import { signal } from "@preact/signals-react";
+import axios from "axios";
 
-const api = axios.create({
-  baseURL: `http://${
-    localStorage.getItem("ip")?.toString() || "127.0.0.1:8080"
-  }/`,
+export const api = axios.create({
+  baseURL: `http://${localStorage.getItem("ip")?.toString()}/`,
 });
 
 api.interceptors.response.use(
@@ -13,4 +12,9 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export const fdelay = signal(
+  parseInt(localStorage.getItem("fspeed") ?? "1000")
+);
+export const mdelay = signal(
+  parseInt(localStorage.getItem("mfspeed") ?? "2500")
+);

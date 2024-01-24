@@ -1,4 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
 import {
   CartesianGrid,
   Legend,
@@ -8,23 +14,16 @@ import {
   Tooltip,
   YAxis,
 } from "recharts";
-
-import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box";
-import Snackbar from "@mui/material/Snackbar";
-import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
-import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
-import { signal, useSignalEffect } from "@preact/signals-react";
-
-import api from "../Utils/api";
-import pageOptions from "../Utils/page";
+import { v5 as uuidv5 } from "uuid";
+import { api, fdelay } from "../Utils/api";
 import tooltip from "../Utils/tooltip";
+import { pageOptions } from "../Utils/utils";
 
 const alert = signal({ error: false, message: "" });
 const rows = signal<any>([]);
-const cell = signal({ id: 0 });
-
+const cell = signal({ id: "" });
 const powerRows: any[] = [];
+
 function Power() {
   const columns: GridColDef[] = [
     { field: "CircuitID", headerName: "Circuit ID", width: 80 },
@@ -91,44 +90,38 @@ function Power() {
       }
     };
 
-    const fspeedString = localStorage.getItem("fspeed");
-    const delay = fspeedString ? parseInt(fspeedString) : 1000;
-
     const interval = setInterval(() => {
       fetchData();
-    }, delay);
+    }, fdelay.value);
     return () => {
       clearInterval(interval);
     };
   });
 
   for (const row of rows.value) {
-    if (!powerRows[row["CircuitID"]]) {
-      powerRows[row["CircuitID"]] = [];
+    const id = uuidv5(String(row["CircuitID"]), uuidv5.URL);
+    row.CustomID = id;
+    if (!powerRows[id]) {
+      powerRows[id] = [];
     }
 
-    if (powerRows[row["CircuitID"]].length >= 10) {
-      powerRows[row["CircuitID"]].shift();
+    if (powerRows[id].length >= 10) {
+      powerRows[id].shift();
     } else {
-      powerRows[row["CircuitID"]].push(row);
+      powerRows[id].push(row);
     }
   }
 
   const powerChart: any[] = [];
-
-  for (let v = 0; v < powerRows.length; v++) {
-    if (powerRows[v]) {
-      for (let i = 0; i < powerRows[v].length; i++) {
-        if (powerRows[v][i]["CircuitID"] === cell.value.id) {
-          powerChart.push({
-            CircuitID: powerRows[v][i].CircuitID,
-            PowerCapacity: powerRows[v][i].PowerCapacity,
-            PowerProduction: powerRows[v][i].PowerProduction,
-            PowerConsumed: powerRows[v][i].PowerConsumed,
-            PowerMaxConsumed: powerRows[v][i].PowerMaxConsumed,
-          });
-        }
-      }
+  if (powerRows[cell.value.id]) {
+    for (const row of powerRows[cell.value.id]) {
+      powerChart.push({
+        CircuitID: row.CircuitID,
+        PowerCapacity: row.PowerCapacity,
+        PowerProduction: row.PowerProduction,
+        PowerConsumed: row.PowerConsumed,
+        PowerMaxConsumed: row.PowerMaxConsumed,
+      });
     }
   }
 
@@ -157,9 +150,9 @@ function Power() {
             paginationModel: { page: 0, pageSize: 100 },
           },
         }}
-        getRowId={(row) => row.CircuitID}
+        getRowId={(row) => row.CustomID}
         pageSizeOptions={pageOptions()}
-        onCellClick={(v) => (cell.value.id = Number(v.id))}
+        onCellClick={(v) => (cell.value.id = String(v.id))}
       />
       <Box
         sx={{

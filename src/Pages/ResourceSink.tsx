@@ -1,16 +1,14 @@
-import coupon from "/img/ResourceSink/coupon.png";
-import { Fragment } from "react";
-
-import Alert from "@mui/material/Alert";
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box/Box";
 import Card from "@mui/material/Card/Card";
 import LinearProgress from "@mui/material/LinearProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography/Typography";
 import { signal, useSignalEffect } from "@preact/signals-react";
-
-import api from "../Utils/api";
+import { Fragment } from "react";
+import { api, fdelay } from "../Utils/api";
+import coupon from "/img/ResourceSink/coupon.png";
 
 const alert = signal({ error: false, message: "" });
 const data = signal<any>([]);
@@ -30,12 +28,9 @@ function ResourceSink() {
       }
     };
 
-    const fspeedString = localStorage.getItem("fspeed");
-    const delay = fspeedString ? parseInt(fspeedString) : 1000;
-
     const interval = setInterval(() => {
       fetchData();
-    }, delay);
+    }, fdelay.value);
     return () => {
       clearInterval(interval);
     };

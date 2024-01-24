@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
 import {
   CartesianGrid,
   Legend,
@@ -9,24 +15,14 @@ import {
   Tooltip,
   YAxis,
 } from "recharts";
-
-import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box";
-import Snackbar from "@mui/material/Snackbar";
-import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
-import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
-import { signal, useSignalEffect } from "@preact/signals-react";
-
-import api from "../Utils/api";
-import pageOptions from "../Utils/page";
+import { v5 as uuidv5 } from "uuid";
+import { api, fdelay } from "../Utils/api";
 import tooltip from "../Utils/tooltip";
+import { pageOptions } from "../Utils/utils";
 
 const alert = signal({ error: false, message: "" });
-
 const rows = signal<any>([]);
-
-const cell = signal({ id: 0 });
-
+const cell = signal({ id: "" });
 const droneRows: any[] = [];
 
 function Drone() {
@@ -57,29 +53,29 @@ function Drone() {
       }
     };
 
-    const fspeedString = localStorage.getItem("fspeed");
-    const delay = fspeedString ? parseInt(fspeedString) : 1000;
-
     const interval = setInterval(() => {
       fetchData();
-    }, delay);
+    }, fdelay.value);
     return () => {
       clearInterval(interval);
     };
   });
   for (const row of rows.value) {
-    const id = Math.round(
-      row["location"]["x"] + row["location"]["y"] + row["location"]["z"]
+    const id = uuidv5(
+      String(
+        row["location"]["x"] + row["location"]["y"] + row["location"]["z"]
+      ),
+      uuidv5.URL
     );
-    const index = id;
-    if (!droneRows[index]) {
-      droneRows[index] = [];
+    row.CustomID = id;
+    if (!droneRows[id]) {
+      droneRows[id] = [];
     }
 
-    if (droneRows[index].length >= 10) {
-      droneRows[index].shift();
+    if (droneRows[id].length >= 10) {
+      droneRows[id].shift();
     } else {
-      droneRows[index].push(row);
+      droneRows[id].push(row);
     }
   }
 
@@ -118,13 +114,9 @@ function Drone() {
             paginationModel: { page: 0, pageSize: 100 },
           },
         }}
-        getRowId={(row) =>
-          Math.round(
-            row["location"]["x"] + row["location"]["y"] + row["location"]["z"]
-          )
-        }
+        getRowId={(row) => row.CustomID}
         pageSizeOptions={pageOptions()}
-        onCellClick={(v) => (cell.value.id = Number(v.id))}
+        onCellClick={(v) => (cell.value.id = String(v.id))}
       />
       <Box
         sx={{

@@ -1,5 +1,4 @@
 import * as Icons from "@mui/icons-material";
-
 import DetailedProd from "../Pages/DetailedProd";
 import Drone from "../Pages/Drone";
 import Home from "../Pages/Home";
@@ -8,7 +7,6 @@ import OverallProd from "../Pages/OverallProd";
 import Power from "../Pages/Power";
 import ResourceSink from "../Pages/ResourceSink";
 import Settings from "../Pages/Settings";
-
 const pages: Page[] = [
   { node: <Home />, icon: <Icons.Home />, link: "home", label: "Home" },
   {
