@@ -16,7 +16,6 @@ import {
   Typography,
 } from "@mui/material";
 import { signal, useSignalEffect } from "@preact/signals-react";
-import axios from "axios";
 import {
   CRS,
   Icon,
@@ -30,7 +29,7 @@ import ReactDOMServer from "react-dom/server";
 import { MapContainer, useMap } from "react-leaflet";
 import styled from "styled-components";
 import { v5 as uuidv5 } from "uuid";
-import { api, fdelay } from "./api";
+import { api, mdelay } from "./api";
 import { theme } from "./theme";
 const map = signal<any>(null);
 const layers = signal<any>(null);
@@ -87,9 +86,15 @@ function Controls() {
           <FormControlLabel
             control={
               <Checkbox
-                defaultChecked={fixedLayer.enabled}
+                defaultChecked={true}
                 name={fixedLayer.name}
                 color="primary"
+                onChange={(e) => {
+                  fixedLayer.enabled = e.target.checked;
+                  fixedLayer.enabled
+                    ? fixedLayer.group.addTo(map.value)
+                    : fixedLayer.group.removeFrom(map.value);
+                }}
               />
             }
             label={fixedLayer.label}
@@ -178,22 +183,21 @@ function InitMap() {
 
 const markers = signal<any>([]);
 
-const urls = ["getPlayer", "getTrains"];
-
-function UpdateMapData(urls) {
+const UpdateMapData = (urls) => {
   useSignalEffect(() => {
+    const intervals: any = [];
     urls.forEach((url) => {
       const layer = layers.value.find((layer) => {
         if (layer.url === url) {
           return true;
         }
-      });
-      const cancelTokenSource = axios.CancelToken.source();
+      }) as Layer;
       const fetchData = async () => {
         try {
-          const result: Array<any> = await api.get(url, {
-            cancelToken: cancelTokenSource.token,
-          });
+          if (!layer.enabled) {
+            return;
+          }
+          const result: Array<any> = await api.get(url);
           result.forEach((res) => {
             if (res == null) {
               return;
@@ -378,9 +382,11 @@ function UpdateMapData(urls) {
                     </Typography>
                   </Box>
                 );
-                iconUrl = `http://${localStorage.getItem("ip")}/Icons/${String(
-                  res.ClassName
-                ).replace("BP", "Desc")}.png`;
+                id = res.ID;
+                iconUrl = `/img/Map/${String(res.ClassName).replace(
+                  "BP",
+                  "Desc"
+                )}.png`;
                 break;
               case "getTruckStation":
                 popupContent = () => (
@@ -454,32 +460,41 @@ function UpdateMapData(urls) {
                   ReactDOMServer.renderToString(popupContent() || <></>)
                 );
               marker.setLatLng(markerLocation);
-              marker.setIcon(layer.icon);
+              marker.setIcon(
+                new Icon({ iconUrl: iconUrl, iconSize: [32, 32] })
+              );
             }
           });
-        } catch (e) {
-          console.log(e);
+        } catch {
+          ("");
         }
       };
-      const newIntervalId = setInterval(() => {
-        fetchData();
-      }, fdelay.value);
 
-      return () => {
-        cancelTokenSource.cancel();
-        clearInterval(newIntervalId);
-      };
+      const interval = setInterval(() => {
+        fetchData();
+      }, mdelay.value);
+      intervals.push(interval);
     });
+    return () => {
+      intervals.forEach((id) => clearInterval(id));
+      Object.values(layers.value).map((layer) => {
+        const l = layer as Layer;
+        l.enabled = true;
+      });
+    };
   });
-  return null;
-}
+};
 
 export default function MapElement(clayers) {
   layers.value = clayers["layers"];
   const lg = layers.value.map((layer) => {
     return layer.group;
   });
-  UpdateMapData(urls);
+  UpdateMapData(
+    layers.value.map((layer) => {
+      return layer.url;
+    })
+  );
   return (
     <Container>
       <Controls />

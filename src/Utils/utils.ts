@@ -1,17 +1,20 @@
 import { LayerGroup } from "leaflet";
 import { Layer } from "./map";
+import { signal } from "@preact/signals-react";
+
+const online = signal(false);
 
 export async function connected(ip) {
   return await fetch(`http://${ip}/getAll`)
     .then((response) => {
       if (response.status === 200) {
         localStorage.setItem("ip", ip);
-
+        online.value = true;
         return true;
       }
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
+      online.value = false;
     });
 }
 

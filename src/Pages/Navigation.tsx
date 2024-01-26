@@ -8,7 +8,6 @@ import Paper from '@mui/material/Paper/Paper';
 import useTheme from '@mui/material/styles/useTheme';
 import useMediaQuery from '@mui/material/useMediaQuery/useMediaQuery';
 import { signal } from '@preact/signals-react';
-
 import pages from '../Utils/pages';
 
 const drawer = signal(false);

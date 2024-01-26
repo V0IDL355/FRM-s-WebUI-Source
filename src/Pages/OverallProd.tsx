@@ -1,4 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { signal, useSignalEffect } from "@preact/signals-react";
 import {
   CartesianGrid,
   Legend,
@@ -8,14 +14,6 @@ import {
   Tooltip,
   YAxis,
 } from "recharts";
-
-import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box";
-import Snackbar from "@mui/material/Snackbar";
-import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
-import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
-import { signal, useSignalEffect } from "@preact/signals-react";
-
 import { v5 as uuidv5 } from "uuid";
 import { api, fdelay } from "../Utils/api";
 import tooltip from "../Utils/tooltip";
@@ -52,6 +50,10 @@ function OverallProd() {
       try {
         const result: Array<any> = await api.get("/getProdStats");
         result.forEach((data) => {
+          const prodPerMin = (data.ProdPerMin.match(/\d+\.\d+/g) || []).map(
+            (data) => Math.round(parseInt(data))
+          );
+          data.ProdPerMin = `P:${prodPerMin[0]}/min | C:${prodPerMin[1]}/min`;
           data.ProdPercent = Math.round(data.ProdPercent);
           data.ConsPercent = Math.round(data.ConsPercent);
           data.CurrentProd = Math.round(data.CurrentProd);

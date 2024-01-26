@@ -1,4 +1,3 @@
-import { MuiColorInput } from "mui-color-input";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -11,6 +10,7 @@ import TextField from "@mui/material/TextField/TextField";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
 import { signal } from "@preact/signals-react";
+import { MuiColorInput } from "mui-color-input";
 import {
   primaryColor,
   resetDefault,

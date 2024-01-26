@@ -1,20 +1,22 @@
-import React, { FC } from "react";
-import { Route, Routes } from "react-router-dom";
-
 import { Alert, Container, CssBaseline, Snackbar } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-
+import { signal } from "@preact/signals-react";
+import React, { FC } from "react";
+import { Route, Routes } from "react-router-dom";
 import NotFoundPage from "./Pages/404";
 import Home from "./Pages/Home";
 import Navigation from "./Pages/Navigation";
 import pages from "./Utils/pages";
 import { theme } from "./Utils/theme";
-import { signal } from "@preact/signals-react";
 
 function checkLocalStorage() {
-  localStorage.getItem("ip") ? "" : localStorage.setItem("ip", "127.0.0.1:8080");
+  localStorage.getItem("ip")
+    ? ""
+    : localStorage.setItem("ip", "127.0.0.1:8080");
   localStorage.getItem("fspeed") ? "" : localStorage.setItem("fspeed", "1000");
-  localStorage.getItem("mfspeed") ? "" : localStorage.setItem("mfspeed", "2500");
+  localStorage.getItem("mfspeed")
+    ? ""
+    : localStorage.setItem("mfspeed", "2500");
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -50,8 +52,7 @@ const MainComponent: FC = () => {
           <Navigation />
           <Routes>
             <Route index element={<Home />} />
-            <Route path="/" element={<Home />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="/" element={<Home />}></Route>
             {pages.map((page) => (
               <Route
                 key={page.label}
@@ -59,6 +60,7 @@ const MainComponent: FC = () => {
                 element={page.node}
               />
             ))}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Container>
       </div>
