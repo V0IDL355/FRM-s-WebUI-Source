@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Container } from "@mui/material";
-import MapElement, { Layer } from "../Utils/map";
-import { createLayer } from "../Utils/utils";
+import {Container} from "@mui/material";
+import MapElement, {Layer} from "../Utils/map";
+import {createLayer} from "../Utils/utils";
 
 const tempLayers: Layer[] = [
   createLayer({
