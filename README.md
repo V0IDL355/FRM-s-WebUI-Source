@@ -1,6 +1,8 @@
 # Fiscit Remote Monitoring Web UI Source
 
-Welcome to the GitHub repository for the web user interface source code of Fiscit Remote Monitoring (FRM). This repository contains the code for the web interface used in the FRM mod, which allows you to remotely monitor power and other aspects of your dedicated server in the game Satisfactory.
+Welcome to the GitHub repository for the web user interface source code of Fiscit Remote Monitoring (FRM). This
+repository contains the code for the web interface used in the FRM mod, which allows you to remotely monitor power and
+other aspects of your dedicated server in the game Satisfactory.
 
 ![FRM Logo](https://github.com/GalaxyVOID/FicsitRemoteMonitoring/blob/main/www/icon.png?raw=true)
 
@@ -12,13 +14,17 @@ Welcome to the GitHub repository for the web user interface source code of Fisci
 
 ## About Fiscit Remote Monitoring
 
-Have you ever left your base in Satisfactory and wondered if the power at home was still stable? Do you need a way to remotely monitor your power and other server-related information? Fiscit Remote Monitoring is here to help! This mod provides a web-based user interface for monitoring various aspects of your dedicated server, including power status, battery information, and more.
+Have you ever left your base in Satisfactory and wondered if the power at home was still stable? Do you need a way to
+remotely monitor your power and other server-related information? Fiscit Remote Monitoring is here to help! This mod
+provides a web-based user interface for monitoring various aspects of your dedicated server, including power status,
+battery information, and more.
 
 **Note:** This mod is not required to be on everyone's mod list. You may run this mod alone or with your group.
 
 ## Special Thanks
 
-We would like to extend our gratitude to the following individuals for their support, contributions, and assistance in making Fiscit Remote Monitoring possible:
+We would like to extend our gratitude to the following individuals for their support, contributions, and assistance in
+making Fiscit Remote Monitoring possible:
 
 - [Feyko](https://discordapp.com/users/227473074616795137)
 - [Robb](https://discordapp.com/users/187385442549628928)

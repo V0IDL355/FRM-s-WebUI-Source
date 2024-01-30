@@ -7,6 +7,8 @@ import OverallProd from "../Pages/OverallProd";
 import Power from "../Pages/Power";
 import ResourceSink from "../Pages/ResourceSink";
 import Settings from "../Pages/Settings";
+import { ReactElement } from "react";
+
 const pages: Page[] = [
   { node: <Home />, icon: <Icons.Home />, link: "home", label: "Home" },
   {
@@ -37,11 +39,12 @@ const pages: Page[] = [
     label: "Settings",
   },
 ];
+
 interface Page {
-  node: JSX.Element;
-  icon: JSX.Element;
-  link: string;
+  icon: ReactElement;
   label: string;
+  link: string;
+  node: ReactElement;
 }
 
 export default pages;

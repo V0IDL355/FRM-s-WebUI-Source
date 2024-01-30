@@ -9,20 +9,20 @@ export default defineConfig({
     "import.meta.env.PACKAGE_VERSION": JSON.stringify(packageJson.version),
   },
   build: {
-    outDir: 'dist',
-    assetsDir: '',
+    outDir: "dist",
+    assetsDir: "",
     rollupOptions: {
       output: {
-        entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
-        assetFileNames: 'assets/[name].[ext]',
+        entryFileNames: "assets/[name].[hash].js",
+        chunkFileNames: "assets/[name].[hash].js",
+        assetFileNames: "assets/[name].[ext]",
       },
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
+    include: ["react", "react-dom"],
   },
   ssr: {
-    noExternal: ['react', 'react-dom'],
+    noExternal: ["react", "react-dom"],
   },
 });

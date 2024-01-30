@@ -17,6 +17,7 @@ import {
   secondaryColor,
 } from "../Utils/setting vars";
 import { connected } from "../Utils/utils";
+import { ChangeEvent } from "react";
 
 const alert = signal({ error: false, message: "" });
 
@@ -61,9 +62,7 @@ function Settings() {
                   label="Ip:Port"
                   defaultValue={localStorage.getItem("ip")}
                   variant="outlined"
-                  onChange={async (
-                    event: React.ChangeEvent<HTMLInputElement>
-                  ) => {
+                  onChange={async (event: ChangeEvent<HTMLInputElement>) => {
                     const connectStatus = await connected(event.target.value);
                     alert.value = connectStatus
                       ? { error: false, message: "Valid IP!" }
@@ -81,7 +80,7 @@ function Settings() {
                   }}
                   defaultValue={localStorage.getItem("fspeed")}
                   variant="outlined"
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     if (parseInt(event.target.value)) {
                       localStorage.setItem("fspeed", event.target.value);
                       alert.value = { error: false, message: "Valid speed!" };
@@ -101,7 +100,7 @@ function Settings() {
                   }}
                   defaultValue={localStorage.getItem("mfspeed")}
                   variant="outlined"
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     if (parseInt(event.target.value)) {
                       localStorage.setItem("mfspeed", event.target.value);
                       alert.value = { error: false, message: "Valid speed!" };

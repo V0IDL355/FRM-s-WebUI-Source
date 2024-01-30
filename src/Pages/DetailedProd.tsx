@@ -2,22 +2,14 @@
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Snackbar from "@mui/material/Snackbar";
-import { DataGrid } from "@mui/x-data-grid/DataGrid/DataGrid";
-import { GridColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
-import { signal, useSignalEffect } from "@preact/signals-react";
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  YAxis,
-} from "recharts";
-import { v5 as uuidv5 } from "uuid";
-import { api, fdelay } from "../Utils/api";
+import {DataGrid} from "@mui/x-data-grid/DataGrid/DataGrid";
+import {GridColDef} from "@mui/x-data-grid/models/colDef/gridColDef";
+import {signal, useSignalEffect} from "@preact/signals-react";
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis,} from "recharts";
+import {v5 as uuidv5} from "uuid";
+import {api, fdelay} from "../Utils/api";
 import tooltip from "../Utils/tooltip";
-import { pageOptions } from "../Utils/utils";
+import {pageOptions} from "../Utils/utils";
 
 const alert = signal({ error: false, message: "" });
 const rows = signal<any>([]);
@@ -42,7 +34,7 @@ function DetailedProd() {
   ];
 
   useSignalEffect(() => {
-    const fetchData = async () => {
+    const interval = setInterval(async () => {
       try {
         const result: Array<any> = await api.get("/getFactory");
         result.forEach((data) => {
@@ -56,10 +48,6 @@ function DetailedProd() {
           message: "Error fetching data. Please try again later.",
         };
       }
-    };
-
-    const interval = setInterval(() => {
-      fetchData();
     }, fdelay.value);
     return () => {
       clearInterval(interval);
@@ -69,7 +57,7 @@ function DetailedProd() {
   for (const row of rows.value) {
     const id = uuidv5(
       String(row.location.x + row.location.y + row.location.z),
-      uuidv5.URL
+      uuidv5.URL,
     );
     row.CustomID = id;
     if (!detailProdRows[id]) {

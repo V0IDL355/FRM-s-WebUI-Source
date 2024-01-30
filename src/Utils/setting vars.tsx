@@ -1,12 +1,12 @@
-import { signal } from '@preact/signals-react';
+import { signal } from "@preact/signals-react";
 
 const defaultP = "#e8a361";
 const defaultS = "#ca6d35";
 export const primaryColor = signal(
-  localStorage.getItem("primaryC") || defaultP
+  localStorage.getItem("primaryC") || defaultP,
 );
 export const secondaryColor = signal(
-  localStorage.getItem("secondaryC") || defaultS
+  localStorage.getItem("secondaryC") || defaultS,
 );
 
 export function resetDefault() {

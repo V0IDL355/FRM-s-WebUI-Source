@@ -10,13 +10,13 @@ import pages from "./Utils/pages";
 import { theme } from "./Utils/theme";
 
 function checkLocalStorage() {
-  localStorage.getItem("ip")
-    ? ""
-    : localStorage.setItem("ip", "127.0.0.1:8080");
-  localStorage.getItem("fspeed") ? "" : localStorage.setItem("fspeed", "1000");
-  localStorage.getItem("mfspeed")
-    ? ""
-    : localStorage.setItem("mfspeed", "2500");
+  !localStorage.getItem("ip")
+    ? localStorage.setItem("ip", "127.0.0.1:8080")
+    : "";
+  !localStorage.getItem("fspeed") ? localStorage.setItem("fspeed", "1000") : "";
+  !localStorage.getItem("mfspeed")
+    ? localStorage.setItem("mfspeed", "2500")
+    : "";
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

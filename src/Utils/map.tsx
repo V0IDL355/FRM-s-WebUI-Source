@@ -1,39 +1,34 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Add, Layers, Remove } from "@mui/icons-material";
+import {Add, Layers, Remove} from "@mui/icons-material";
 import {
-  Box,
-  Button,
-  ButtonGroup,
-  Card,
-  CardContent,
-  Checkbox,
-  Container,
-  FormControlLabel,
-  List,
-  ListItem,
-  Paper,
-  Typography,
+    Box,
+    Button,
+    ButtonGroup,
+    Card,
+    CardContent,
+    Checkbox,
+    Container,
+    FormControlLabel,
+    List,
+    ListItem,
+    Paper,
+    Typography,
 } from "@mui/material";
-import { signal, useSignalEffect } from "@preact/signals-react";
-import {
-  CRS,
-  Icon,
-  LatLng,
-  LayerGroup,
-  Marker,
-  Popup,
-  imageOverlay,
-} from "leaflet";
+import {signal, useSignalEffect} from "@preact/signals-react";
+import {CRS, Icon, imageOverlay, LatLng, LayerGroup, Marker, Popup,} from "leaflet";
 import ReactDOMServer from "react-dom/server";
-import { MapContainer, useMap } from "react-leaflet";
+import {MapContainer, useMap} from "react-leaflet";
 import styled from "styled-components";
-import { v5 as uuidv5 } from "uuid";
-import { api, mdelay } from "./api";
-import { theme } from "./theme";
+import {v5 as uuidv5} from "uuid";
+import {api, mdelay} from "./api";
+import {theme} from "./theme";
+import {ReactElement} from "react";
+
 const map = signal<any>(null);
 const layers = signal<any>(null);
 const open = signal(false);
+
 export interface Layer {
   group: LayerGroup;
   name: string;
@@ -77,6 +72,7 @@ function Controls() {
       </Box>
     );
   }
+
   function generateLayerMap() {
     return Object.values(layers.value).map((layer) => {
       const fixedLayer = layer as Layer;
@@ -103,6 +99,7 @@ function Controls() {
       );
     });
   }
+
   function Layer() {
     return (
       <Box
@@ -133,6 +130,7 @@ function Controls() {
       </Box>
     );
   }
+
   return (
     <Container>
       <Zoom />
@@ -141,38 +139,20 @@ function Controls() {
   );
 }
 
-const adjustColor = (hex: string, percent: number): string => {
-  hex = hex.replace("#", "");
-
-  const num = parseInt(hex, 16);
-  let r = (num >> 16) + percent;
-  let g = ((num >> 8) & 255) + percent;
-  let b = (num & 255) + percent;
-
-  r = Math.min(255, Math.max(0, r));
-  g = Math.min(255, Math.max(0, g));
-  b = Math.min(255, Math.max(0, b));
-
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
-};
-
 const PopupWrapper = styled.div`
-  & .leaflet-popup-content-wrapper {
-    background: ${adjustColor(
-      theme.palette.background.default,
-      10
-    )}; /* Using theme-based primary color */
+  .leaflet-popup-content-wrapper {
+    background: ${theme.palette.background
+      .default}; /* Using theme-based primary color */
     color: ${theme.palette.text.primary};
     box-shadow: 0 0 14px 2px rgb(255 255 255 / 40%);
     border-radius: 10px;
   }
 `;
-const bounds: L.LatLngBoundsExpression = [
+
+const mapImg = imageOverlay("/img/Map/map.png", [
   [-375e3, -324698.832031],
   [375e3, 425301.832031],
-];
-
-const mapImg = imageOverlay("/img/Map/map.png", bounds);
+]);
 
 function InitMap() {
   map.value = useMap();
@@ -183,16 +163,16 @@ function InitMap() {
 
 const markers = signal<any>([]);
 
-const UpdateMapData = (urls) => {
+const UpdateMapData = (urls: string[]) => {
   useSignalEffect(() => {
     const intervals: any = [];
     urls.forEach((url) => {
-      const layer = layers.value.find((layer) => {
+      const layer = layers.value.find((layer: Layer) => {
         if (layer.url === url) {
           return true;
         }
       }) as Layer;
-      const fetchData = async () => {
+      const interval = setInterval(async () => {
         try {
           if (!layer.enabled) {
             return;
@@ -202,11 +182,11 @@ const UpdateMapData = (urls) => {
             if (res == null) {
               return;
             }
-            const lat = (res.location.y | res.location.Y) * -1;
-            const lon = res.location.x | res.location.X;
+            const lat = (res.location.y | res.location["Y"]) * -1;
+            const lon = res.location.x | res.location["X"];
             const markerLocation = new LatLng(lat, lon);
 
-            let popupContent: () => JSX.Element | null = () => (
+            let popupContent: () => ReactElement | null = () => (
               <Card>
                 <CardContent>
                   <Typography variant="h2" gutterBottom>
@@ -224,16 +204,19 @@ const UpdateMapData = (urls) => {
                   <Paper>
                     <Typography variant="h2" gutterBottom>
                       Player:{" "}
-                      {res.PlayerName ? res.PlayerName : "Unknown/Offline"}
+                      {res["PlayerName"]
+                        ? res["PlayerName"]
+                        : "Unknown/Offline"}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
                       Ping Time:{" "}
-                      {res.PlayerName ? res.PingTime : "Unknown/Offline"} ms
+                      {res["PlayerName"] ? res["PingTime"] : "Unknown/Offline"}{" "}
+                      ms
                     </Typography>
                   </Paper>
                 );
-                id = res.ID;
-                iconUrl = res.Dead
+                id = res["ID"];
+                iconUrl = res["Dead"]
                   ? "/img/Map/player_dead.png"
                   : "/img/Map/player.png";
                 break;
@@ -241,13 +224,13 @@ const UpdateMapData = (urls) => {
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Destination: {res.CurrentDestination}
+                      Destination: {res["CurrentDestination"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Flying Speed: {Math.round(res.FlyingSpeed)}
+                      Flying Speed: {Math.round(res["FlyingSpeed"])}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Flying: {Math.round(res.FlyingSpeed) > 0 ? "✅" : "❌"}
+                      Flying: {Math.round(res["FlyingSpeed"]) > 0 ? "✅" : "❌"}
                     </Typography>
                   </Box>
                 );
@@ -257,35 +240,35 @@ const UpdateMapData = (urls) => {
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Train Name: {res.Name}
+                      Train Name: {res["Name"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Speed: {res.ForwardSpeed}
+                      Speed: {res["ForwardSpeed"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Derailed: {res.Derailed ? "✅" : "❌"}
+                      Derailed: {res["Derailed"] ? "✅" : "❌"}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Train Station: {res.TrainStation}
+                      Train Station: {res["TrainStation"]}
                     </Typography>
                   </Box>
                 );
-                id = res.Name;
+                id = res["Name"];
                 iconUrl = "/img/Map/train.png";
                 break;
               case "getVehicles":
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Vehicle Type: {res.Name}
+                      Vehicle Type: {res["Name"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      AutoPilot: {res.AutoPilot ? "✅" : "❌"}
+                      AutoPilot: {res["AutoPilot"] ? "✅" : "❌"}
                     </Typography>
                   </Box>
                 );
 
-                switch (res.Name) {
+                switch (res["Name"]) {
                   case "Explorer":
                     iconUrl = "/img/Map/explorer.png";
                     break;
@@ -304,10 +287,10 @@ const UpdateMapData = (urls) => {
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Name: {res.Name}
+                      Name: {res["Name"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Paired Station: {res.PairedStation}
+                      Paired Station: {res["PairedStation"]}
                     </Typography>
                   </Box>
                 );
@@ -317,12 +300,12 @@ const UpdateMapData = (urls) => {
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Name: {res.Name}
+                      Name: {res["Name"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
                       LoadingStatus:{" "}
                       {(() => {
-                        switch (res.LoadingStatus) {
+                        switch (res["LoadingStatus"]) {
                           case "Idle":
                             return <span>Idle ⏸️</span>;
                           case "Loading":
@@ -338,7 +321,7 @@ const UpdateMapData = (urls) => {
                     <Typography variant="h3" gutterBottom>
                       LoadingMode:{" "}
                       {(() => {
-                        switch (res.LoadingMode) {
+                        switch (res["LoadingMode"]) {
                           case "Loading":
                             return <span>Load ⬆️</span>;
                           case "Unloading":
@@ -356,11 +339,11 @@ const UpdateMapData = (urls) => {
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Name: {res.Name}
+                      Name: {res["Name"]}
                     </Typography>
-                    <Typography variant="h3">X: {res.location.X}</Typography>
-                    <Typography variant="h3">Y: {res.location.Y}</Typography>
-                    <Typography variant="h3">Z: {res.location.Z}</Typography>
+                    <Typography variant="h3">X: {res.location["X"]}</Typography>
+                    <Typography variant="h3">Y: {res.location["Y"]}</Typography>
+                    <Typography variant="h3">Z: {res.location["Z"]}</Typography>
                   </Box>
                 );
                 iconUrl = "/img/Map/radar_tower.png";
@@ -369,35 +352,35 @@ const UpdateMapData = (urls) => {
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Slug Type: {res.SlugType}
+                      Slug Type: {res["SlugType"]}
                     </Typography>
                     <Typography variant="h3">
-                      X: {res.features.geometry.coordinates.X}
+                      X: {res.features.geometry["coordinates"].X}
                     </Typography>
                     <Typography variant="h3">
-                      Y: {res.features.geometry.coordinates.Y}
+                      Y: {res.features.geometry["coordinates"].Y}
                     </Typography>
                     <Typography variant="h3">
-                      Z: {res.features.geometry.coordinates.Z}
+                      Z: {res.features.geometry["coordinates"].Z}
                     </Typography>
                   </Box>
                 );
-                id = res.ID;
-                iconUrl = `/img/Map/${String(res.ClassName).replace(
+                id = res["ID"];
+                iconUrl = `/img/Map/${String(res["ClassName"]).replace(
                   "BP",
-                  "Desc"
+                  "Desc",
                 )}.png`;
                 break;
               case "getTruckStation":
                 popupContent = () => (
                   <Box>
                     <Typography variant="h2" gutterBottom>
-                      Name: {res.Name}
+                      Name: {res["Name"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
                       LoadMode:{" "}
                       {(() => {
-                        switch (res.LoadMode) {
+                        switch (res["LoadMode"]) {
                           case "Loading":
                             return <span>Loading ⬆️</span>;
                           case "Unloading":
@@ -422,13 +405,13 @@ const UpdateMapData = (urls) => {
                     elevation={1}
                   >
                     <Typography variant="h2" gutterBottom>
-                      Name: {res.Name}
+                      Name: {res["Name"]}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Fully Upgraded: {res.FullyUpgraded ? "✅" : "❌"}
+                      Fully Upgraded: {res["FullyUpgraded"] ? "✅" : "❌"}
                     </Typography>
                     <Typography variant="h3" gutterBottom>
-                      Upgrade Ready: {res.UpgradeReady ? "✅" : "❌"}
+                      Upgrade Ready: {res["UpgradeReady"] ? "✅" : "❌"}
                     </Typography>
                   </Paper>
                 );
@@ -442,14 +425,14 @@ const UpdateMapData = (urls) => {
             }
             if (!markers.value[url][id]) {
               const marker = (markers.value[url][id] = new Marker(
-                markerLocation
+                markerLocation,
               ));
               marker.setIcon(new Icon({ iconUrl: iconUrl }));
               marker.addTo(layer.group);
               marker.bindPopup(
                 new Popup().setContent(
-                  ReactDOMServer.renderToString(popupContent() || <></>)
-                )
+                  ReactDOMServer.renderToString(popupContent() || <></>),
+                ),
               );
             } else if (markers.value[url][id]) {
               const marker = markers.value[url][id] as Marker;
@@ -457,26 +440,24 @@ const UpdateMapData = (urls) => {
               marker
                 .getPopup()
                 ?.setContent(
-                  ReactDOMServer.renderToString(popupContent() || <></>)
+                  ReactDOMServer.renderToString(popupContent() || <></>),
                 );
               marker.setLatLng(markerLocation);
               marker.setIcon(
-                new Icon({ iconUrl: iconUrl, iconSize: [32, 32] })
+                new Icon({ iconUrl: iconUrl, iconSize: [32, 32] }),
               );
             }
           });
         } catch {
-          ("");
+          //
         }
-      };
-
-      const interval = setInterval(() => {
-        fetchData();
       }, mdelay.value);
       intervals.push(interval);
     });
     return () => {
-      intervals.forEach((id) => clearInterval(id));
+      intervals.forEach((id: NodeJS.Timeout | string | number | undefined) =>
+        clearInterval(id),
+      );
       Object.values(layers.value).map((layer) => {
         const l = layer as Layer;
         l.enabled = true;
@@ -485,15 +466,19 @@ const UpdateMapData = (urls) => {
   });
 };
 
-export default function MapElement(clayers) {
+interface MapElementProps {
+  layers: Layer[];
+}
+
+export default function MapElement(clayers: MapElementProps) {
   layers.value = clayers["layers"];
-  const lg = layers.value.map((layer) => {
+  const lg = layers.value.map((layer: Layer) => {
     return layer.group;
   });
   UpdateMapData(
-    layers.value.map((layer) => {
+    layers.value.map((layer: Layer) => {
       return layer.url;
-    })
+    }),
   );
   return (
     <Container>

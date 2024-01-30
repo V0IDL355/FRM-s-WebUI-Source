@@ -9,12 +9,12 @@ api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export const fdelay = signal(
-  parseInt(localStorage.getItem("fspeed") ?? "1000")
+  parseInt(localStorage.getItem("fspeed") ?? "1000"),
 );
 export const mdelay = signal(
-  parseInt(localStorage.getItem("mfspeed") ?? "2500")
+  parseInt(localStorage.getItem("mfspeed") ?? "2500"),
 );

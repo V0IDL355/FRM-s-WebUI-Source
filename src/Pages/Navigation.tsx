@@ -1,14 +1,14 @@
-import { Menu } from '@mui/icons-material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Drawer from '@mui/material/Drawer/Drawer';
-import IconButton from '@mui/material/IconButton/IconButton';
-import Paper from '@mui/material/Paper/Paper';
-import useTheme from '@mui/material/styles/useTheme';
-import useMediaQuery from '@mui/material/useMediaQuery/useMediaQuery';
-import { signal } from '@preact/signals-react';
-import pages from '../Utils/pages';
+import { Menu } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Drawer from "@mui/material/Drawer/Drawer";
+import IconButton from "@mui/material/IconButton/IconButton";
+import Paper from "@mui/material/Paper/Paper";
+import useTheme from "@mui/material/styles/useTheme";
+import useMediaQuery from "@mui/material/useMediaQuery/useMediaQuery";
+import { signal } from "@preact/signals-react";
+import pages from "../Utils/pages";
 
 const drawer = signal(false);
 

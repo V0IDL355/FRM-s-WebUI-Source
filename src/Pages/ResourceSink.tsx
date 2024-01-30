@@ -5,9 +5,9 @@ import Card from "@mui/material/Card/Card";
 import LinearProgress from "@mui/material/LinearProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography/Typography";
-import { signal, useSignalEffect } from "@preact/signals-react";
-import { Fragment } from "react";
-import { api, fdelay } from "../Utils/api";
+import {signal, useSignalEffect} from "@preact/signals-react";
+import {Fragment} from "react";
+import {api, fdelay} from "../Utils/api";
 import coupon from "/img/ResourceSink/coupon.png";
 
 const alert = signal({ error: false, message: "" });
@@ -15,10 +15,9 @@ const data = signal<any>([]);
 
 function ResourceSink() {
   useSignalEffect(() => {
-    const fetchData = async () => {
+    const interval = setInterval(async () => {
       try {
-        const result: Array<any> = await api.get("/getResourceSink");
-        data.value = result;
+        data.value = await api.get("/getResourceSink");
         alert.value = { error: false, message: "" };
       } catch (error) {
         alert.value = {
@@ -26,10 +25,6 @@ function ResourceSink() {
           message: "Error fetching data. Please try again later.",
         };
       }
-    };
-
-    const interval = setInterval(() => {
-      fetchData();
     }, fdelay.value);
     return () => {
       clearInterval(interval);
@@ -41,7 +36,7 @@ function ResourceSink() {
       <Fragment>
         <LinearProgress
           variant="determinate"
-          value={data.value[0] ? data.value[0].Percent : 0}
+          value={data.value[0] ? data.value[0]["Percent"] : 0}
         />
       </Fragment>
     );
@@ -108,7 +103,7 @@ function ResourceSink() {
               color: "#ffffff",
             }}
           >
-            {data.value[0] ? data.value[0].NumCoupon : 0}
+            {data.value[0] ? data.value[0]["NumCoupon"] : 0}
           </Typography>
           {Progress()}
         </Card>

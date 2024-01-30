@@ -2,9 +2,9 @@ import { LayerGroup } from "leaflet";
 import { Layer } from "./map";
 import { signal } from "@preact/signals-react";
 
-const online = signal(false);
+export const online = signal(false);
 
-export async function connected(ip) {
+export async function connected(ip: string) {
   return await fetch(`http://${ip}/getAll`)
     .then((response) => {
       if (response.status === 200) {
