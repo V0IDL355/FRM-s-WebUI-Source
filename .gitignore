@@ -134,3 +134,4 @@ src-tauri/target/*
 \! Testing/
 .vscode
 test
+/.idea/
