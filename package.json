@@ -31,7 +31,9 @@
     "react-router-dom": "^6.17.0",
     "recharts": "^2.6.1",
     "styled-components": "^6.1.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "@react-buddy/ide-toolbox": "^2.4.0",
+    "@react-buddy/palette-mui": "^5.0.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.5.6",
