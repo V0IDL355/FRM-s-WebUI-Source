@@ -1,3 +1,6 @@
+> [!WARNING]
+> The UI is currently being reworked. Forking and working on the current ui is not advised.
+
 # Fiscit Remote Monitoring Web UI Source
 
 Welcome to the GitHub repository for the web user interface source code of Fiscit Remote Monitoring (FRM). This
