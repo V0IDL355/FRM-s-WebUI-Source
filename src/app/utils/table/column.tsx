@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, CheckCircle, XCircle } from "lucide-react";
+import { ArrowUpDown, CheckCircle, CircleHelp, XCircle } from "lucide-react";
 
 export const makeHeader = (column: any, text: string) => (
   <Button
@@ -29,6 +29,8 @@ export const makeCell = (row: any, accessorKey: string) => (
       ) : (
         <XCircle className="h-4 w-4" />
       )
+    ) : row.getValue(accessorKey).includes("Unknown") ? (
+      <CircleHelp className="h-4 w-4" />
     ) : (
       row.getValue(accessorKey).toString()
     )}

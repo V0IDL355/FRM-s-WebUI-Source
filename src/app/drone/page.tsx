@@ -3,7 +3,6 @@ import { DataTable } from "@/app/utils/table/data-table";
 import { columns } from "./columns";
 import React, { useEffect, useState } from "react";
 import { api, fdelay } from "@/app/utils/api";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
@@ -11,28 +10,21 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Card } from "@/components/ui/card";
 
 const chartConfig = {
-  powercapacity: {
-    label: "PowerCapacity",
+  avgtotalincrate: {
+    label: "AvgTotalIncRate",
     color: "#ca9ee6",
   },
-  powerproduction: {
-    label: "PowerProduction",
+  avgtotaloutrate: {
+    label: "AvgTotalOutRate",
     color: "#e78284",
-  },
-  powerconsumed: {
-    label: "PowerConsumed",
-    color: "#ef9f76",
-  },
-  powermaxconsumed: {
-    label: "PowerMaxConsumed",
-    color: "#e5c890",
   },
 } satisfies ChartConfig;
 
-export default function Power() {
+export default function OverallProd() {
   const [data, setData] = useState<any>([]);
 
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -43,7 +35,7 @@ export default function Power() {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const data = (await api.get("/getPower")).data;
+        const data = (await api.get("/getDroneStation")).data;
         setData(data);
       } catch {}
     }, fdelay);
@@ -99,30 +91,16 @@ export default function Power() {
             <ChartTooltip content={<ChartTooltipContent />} />
             <ChartLegend />
             <Line
-              dataKey="PowerCapacity"
+              dataKey="AvgTotalIncRate"
               type="monotone"
-              stroke="var(--color-powercapacity)"
+              stroke="var(--color-avgtotalincrate)"
               strokeWidth={2}
               dot={false}
             />
             <Line
-              dataKey="PowerProduction"
+              dataKey="AvgTotalOutRate"
               type="monotone"
-              stroke="var(--color-powerproduction)"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              dataKey="PowerConsumed"
-              type="monotone"
-              stroke="var(--color-powerconsumed)"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              dataKey="PowerMaxConsumed"
-              type="monotone"
-              stroke="var(--color-powermaxconsumed)"
+              stroke="var(--color-avgtotaloutrate)"
               strokeWidth={2}
               dot={false}
             />

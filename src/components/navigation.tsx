@@ -6,6 +6,7 @@ import {
   HeartHandshake,
   Home,
   Map,
+  Plane,
   PlugZap,
   Printer,
   Settings,
@@ -50,6 +51,12 @@ function Navigation() {
           <Button variant="outline">
             <PlugZap className="mr-2 h-4 w-4" />
             Power
+          </Button>
+        </Link>
+        <Link href="/drone">
+          <Button variant="outline">
+            <Plane className="mr-2 h-4 w-4" />
+            Drone
           </Button>
         </Link>
         <Link href="/overallprod">

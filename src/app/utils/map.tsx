@@ -24,9 +24,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const map = signal<any>(null);
-const layers = signal<any>(null);
-
 export interface Layer {
   group: LayerGroup;
   name: string;
@@ -35,6 +32,10 @@ export interface Layer {
   url: string;
   iconURL: string;
 }
+
+const map = signal<any>(null);
+const layers = signal<any>(null);
+const markers = signal<any>([]);
 
 function Controls() {
   return (
@@ -85,8 +86,6 @@ function InitMap() {
 
   return <></>;
 }
-
-const markers = signal<any>([]);
 
 const UpdateMapData = (urls: string[]) => {
   useEffect(() => {
@@ -393,11 +392,7 @@ const UpdateMapData = (urls: string[]) => {
   });
 };
 
-interface MapElementProps {
-  layers: Layer[];
-}
-
-export default function MapElement(clayers: MapElementProps) {
+export default function MapElement(clayers: { layers: Layer[] }) {
   layers.value = clayers["layers"];
   const lg = layers.value.map((layer: Layer) => {
     return layer.group;

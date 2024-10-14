@@ -1,7 +1,5 @@
-// home
 "use client";
 
-import "@/app/css/page css/thanks.css";
 import { useSignalEffect } from "@preact/signals-react";
 import { api, fdelay } from "@/app/utils/api";
 import { useState } from "react";
