@@ -1,6 +1,3 @@
-> [!IMPORTANT] 
-> The UI is currently being reworked. Forking and working on the current ui is not advised.
-
 <h1 align="center">Fiscit Remote Monitoring Web UI Source</h1>
 <h3 align="center">This repo is for FRM's UI</h3>
 
