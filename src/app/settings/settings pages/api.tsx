@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 async function checkConnection(URL: string) {
   const urlCleaned = () => {
     let url = URL.trim();
+    if (url == "/") return URL;
     url = url.endsWith("/") ? url : `${url}/`;
     return /^https?:\/\//i.test(url) ? url : `http://${url}`;
   };
@@ -16,6 +17,7 @@ async function checkConnection(URL: string) {
     .then(async (response) => {
       if (response.status === 200) {
         localStorage.setItem("url", urlCleaned());
+
         return true;
       }
     })
@@ -47,7 +49,7 @@ export default function Settings_API() {
       <CardContent>
         <div style={{ margin: 5 }}>
           <div style={{ margin: 5 }}>
-            <Label htmlFor="urlInput">API Url (http://example:8080)</Label>
+            <Label htmlFor="urlInput">API Url (http://example:8080 or /)</Label>
             <Input
               type="text"
               id="urlInput"

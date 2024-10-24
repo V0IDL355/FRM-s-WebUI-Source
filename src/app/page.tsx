@@ -22,50 +22,48 @@ const cards = [
 
 export default function Home() {
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          padding: 25,
-          gap: 5,
-          boxSizing: "border-box",
-          alignItems: "stretch",
-        }}
-      >
-        {cards.map((card, i) => (
-          <div
-            key={i}
-            className="card"
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: 5,
+        boxSizing: "border-box",
+        alignItems: "stretch",
+        margin: 5,
+        marginTop: 25,
+      }}
+    >
+      {cards.map((card, i) => (
+        <div
+          key={i}
+          className="card"
+          style={{
+            flex: "1 1 500px",
+            height: "100%",
+          }}
+        >
+          <Link
             style={{
-              flex: "1 1 500px",
-              height: "100%",
+              position: "relative",
+              flexGrow: 1,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
             }}
+            href={card.link}
           >
-            <Link
-              style={{
-                zIndex: 2,
-                position: "relative",
-                flexGrow: 1,
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}
-              href={card.link}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>{card.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>{card.description}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        ))}
-      </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>{card.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{card.description}</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      ))}
     </div>
   );
 }

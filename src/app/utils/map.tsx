@@ -4,7 +4,7 @@ import { CRS, Icon, LatLng, LayerGroup, Marker, Popup } from "leaflet";
 import { ImageOverlay, MapContainer, useMap } from "react-leaflet";
 import { v5 as uuidv5 } from "uuid";
 import { api, mdelay } from "./api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardDescription,
@@ -34,52 +34,6 @@ export interface Layer {
 }
 
 const map = signal<any>(null);
-const layers = signal<any>(null);
-const markers = signal<any>([]);
-
-function Controls() {
-  return (
-    <Popover>
-      <PopoverTrigger
-        style={{
-          left: "50%",
-          position: "absolute",
-          zIndex: 2,
-          marginTop: 5,
-        }}
-      >
-        <Button variant="outline">
-          <Layers className="mr-2 h-4 w-4" /> Layers
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent>
-        <div className="grid gap-3 m-2">
-          {layers.value.map((layer: Layer, index: number) => {
-            return (
-              <Toggle
-                key={index + layer.label}
-                defaultPressed={layer.enabled}
-                onPressedChange={(pressed) => {
-                  layer.enabled = pressed;
-                  layer.enabled
-                    ? layer.group.addTo(map.value)
-                    : layer.group.removeFrom(map.value);
-                }}
-                style={{ gap: 5 }}
-              >
-                <Avatar style={{ height: 32, width: 32 }}>
-                  <AvatarImage src={layer.iconURL} />
-                  <AvatarFallback>{layer.label}</AvatarFallback>
-                </Avatar>
-                {layer.label}
-              </Toggle>
-            );
-          })}
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
 
 function InitMap() {
   map.value = useMap();
@@ -87,21 +41,19 @@ function InitMap() {
   return <></>;
 }
 
-const UpdateMapData = (urls: string[]) => {
+const MapElement: React.FC<{ l: Layer[] }> = ({ l }) => {
+  const [layers, setLayers] = useState<Layer[]>(l);
+  const [markers, setMarkers] = useState<any>([]);
+
   useEffect(() => {
     const intervals: any = [];
-    urls.forEach((url) => {
-      const layer = layers.value.find((layer: Layer) => {
-        if (layer.url === url) {
-          return true;
-        }
-      }) as Layer;
+    l.forEach((layer: Layer) => {
       const interval = setInterval(async () => {
         try {
           if (!layer.enabled) {
             return;
           }
-          const result: Array<any> = (await api.get(url)).data;
+          const result: Array<any> = (await api.get(layer.url)).data;
           result.forEach((res) => {
             if (res == null) {
               return;
@@ -110,25 +62,16 @@ const UpdateMapData = (urls: string[]) => {
             const lon = res.location.x;
             const markerLocation = new LatLng(lat, lon);
 
-            let id = res["ID"];
+            let id: string = res["ID"];
             let iconUrl = layer.iconURL;
 
             let popup: any;
-            switch (url) {
+            switch (layer.url) {
               case "getPlayer":
                 popup = (
                   <Card>
                     <CardHeader>
-                      <CardTitle>
-                        Player:{" "}
-                        {res["PlayerName"] ? res["PlayerName"] : "Offline"}
-                      </CardTitle>
-                      <CardDescription>
-                        <p>
-                          Ping:{" "}
-                          {res["PlayerName"] ? res["PingTime"] : "Offline"} ms
-                        </p>
-                      </CardDescription>
+                      <CardTitle>Player: {res["Name"] || "Offline"}</CardTitle>
                     </CardHeader>
                   </Card>
                 );
@@ -140,7 +83,9 @@ const UpdateMapData = (urls: string[]) => {
                 popup = (
                   <Card>
                     <CardHeader>
-                      <CardTitle>{res["Name"]}</CardTitle>
+                      <CardTitle style={{ textAlign: "center" }}>
+                        {res["Name"]}
+                      </CardTitle>
                       <CardDescription>
                         <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
                           <li>Current Gear: {res["CurrentGear"]}</li>
@@ -200,6 +145,10 @@ const UpdateMapData = (urls: string[]) => {
                     </CardHeader>
                   </Card>
                 );
+                id =
+                  res["location"]["x"] +
+                  res["location"]["y"] +
+                  res["location"]["z"];
                 break;
               case "getDrone":
                 popup = (
@@ -233,22 +182,20 @@ const UpdateMapData = (urls: string[]) => {
                     </CardHeader>
                   </Card>
                 );
+                id =
+                  res["location"]["x"] +
+                  res["location"]["y"] +
+                  res["location"]["z"];
                 break;
               case "getTrains":
                 popup = (
                   <Card>
                     <CardHeader>
-                      <CardTitle>{res["Name"]}</CardTitle>
+                      <CardTitle>
+                        {res["Name"]} | {res["Status"]}
+                      </CardTitle>
                       <CardDescription>
                         <p>Speed: {res["ForwardSpeed"]}</p>
-                        <p className="flex items-center">
-                          Derailed:{" "}
-                          {res["Derailed"] ? (
-                            <CircleCheck className="h-4 w-4 mr-1" />
-                          ) : (
-                            <CircleX className="h-4 w-4 mr-1" />
-                          )}
-                        </p>
                         <p>Train Station: {res["TrainStation"]}</p>
                       </CardDescription>
                     </CardHeader>
@@ -263,6 +210,10 @@ const UpdateMapData = (urls: string[]) => {
                     </CardHeader>
                   </Card>
                 );
+                id =
+                  res["location"]["x"] +
+                  res["location"]["y"] +
+                  res["location"]["z"];
                 break;
               case "getRadarTower":
                 popup = (
@@ -279,36 +230,32 @@ const UpdateMapData = (urls: string[]) => {
                     </CardHeader>
                   </Card>
                 );
+                id =
+                  res["location"]["x"] +
+                  res["location"]["y"] +
+                  res["location"]["z"];
                 break;
               case "getPowerSlug":
-                let slug;
-                switch (res["ClassName"]) {
-                  case "BP_Crystal_C":
-                    slug = (
-                      <CardTitle style={{ color: "#277ead" }}>
-                        Slug Type: MK1
-                      </CardTitle>
-                    );
-                    break;
-                  case "BP_Crystal_mk2_C":
-                    slug = (
-                      <CardTitle style={{ color: "#cc6f26" }}>
-                        Slug Type: MK2
-                      </CardTitle>
-                    );
-                    break;
-                  case "BP_Crystal_mk3_C":
-                    slug = (
-                      <CardTitle style={{ color: "#ba32cc" }}>
-                        Slug Type: MK3
-                      </CardTitle>
-                    );
-                    break;
-                }
                 popup = (
                   <Card>
                     <CardHeader>
-                      {slug}
+                      <CardTitle
+                        style={{
+                          color: {
+                            BP_Crystal_C: "#277ead",
+                            BP_Crystal_mk2_C: "#cc6f26",
+                            BP_Crystal_mk3_C: "#ba32cc",
+                          }[res["ClassName"] as string],
+                        }}
+                      >
+                        {
+                          {
+                            BP_Crystal_C: "Slug Type: MK1",
+                            BP_Crystal_mk2_C: "Slug Type: MK2",
+                            BP_Crystal_mk3_C: "Slug Type: MK3",
+                          }[res["ClassName"] as string]
+                        }
+                      </CardTitle>
                       <CardDescription>
                         <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
                           <li>X: {res.location["x"]}</li>
@@ -347,25 +294,34 @@ const UpdateMapData = (urls: string[]) => {
                     </CardHeader>
                   </Card>
                 );
+                id =
+                  res["location"]["x"] +
+                  res["location"]["y"] +
+                  res["location"]["z"];
                 break;
             }
 
-            id = uuidv5(String(id), uuidv5.URL);
-            if (!markers.value[url]) {
-              markers.value[url] = [];
+            const markerId = uuidv5(String(id), uuidv5.URL);
+
+            if (!markers[layer.url]) {
+              setMarkers((prevMarkers: any) => ({
+                ...prevMarkers,
+                [layer.url]: [],
+              }));
             }
-            let marker;
+
+            let marker: Marker = !!markers[layer.url][markerId]
+              ? markers[layer.url][markerId]
+              : new Marker(markerLocation);
             popup = renderToString(popup || <></>);
-            if (!markers.value[url][id]) {
-              marker = markers.value[url][id] = new Marker(markerLocation);
+            if (!markers[layer.url][markerId]) {
               marker.addTo(layer.group);
               marker.bindPopup(
                 new Popup({
                   closeButton: false,
                 }).setContent(popup),
               );
-            } else if (markers.value[url][id]) {
-              marker = markers.value[url][id] as Marker;
+            } else if (!!markers[layer.url][markerId]) {
               marker.getPopup()?.setContent(popup);
             }
             marker?.setLatLng(markerLocation);
@@ -377,42 +333,74 @@ const UpdateMapData = (urls: string[]) => {
                 shadowUrl: undefined,
               }),
             );
+            setMarkers((prevMarkers: any) => ({
+              ...prevMarkers,
+              [layer.url]: { ...prevMarkers[layer.url], [markerId]: marker },
+            }));
+            console.log(markers[layer.url][markerId]);
           });
-        } catch {}
+        } catch (e) {
+          console.error(e);
+        }
       }, mdelay);
       intervals.push(interval);
     });
     return () => {
       intervals.forEach((id: NodeJS.Timeout | any) => clearInterval(id));
-      Object.values(layers.value).map((layer) => {
-        const l = layer as Layer;
-        l.enabled = true;
-      });
     };
   });
-};
-
-export default function MapElement(clayers: { layers: Layer[] }) {
-  layers.value = clayers["layers"];
-  const lg = layers.value.map((layer: Layer) => {
-    return layer.group;
-  });
-  UpdateMapData(
-    layers.value.map((layer: Layer) => {
-      return layer.url;
-    }),
-  );
-
   return (
     <div>
-      <Controls />
+      <Popover>
+        <PopoverTrigger
+          style={{
+            left: "50%",
+            position: "absolute",
+            zIndex: 2,
+            marginTop: 5,
+          }}
+        >
+          <Button variant="outline">
+            <Layers className="mr-2 h-4 w-4" /> Layers
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <div className="grid gap-3 m-2">
+            {layers.map((layer: Layer, index: number) => {
+              return (
+                <Toggle
+                  key={index + layer.label}
+                  defaultPressed={layer.enabled}
+                  onPressedChange={(pressed) => {
+                    layer.enabled = pressed;
+                    layer.enabled
+                      ? layer.group.addTo(map.value)
+                      : layer.group.removeFrom(map.value);
+                    setLayers([...l]);
+                  }}
+                  pressed={layer.enabled}
+                  style={{ gap: 5 }}
+                >
+                  <Avatar style={{ height: 32, width: 32 }}>
+                    <AvatarImage src={layer.iconURL} />
+                    <AvatarFallback>{layer.label}</AvatarFallback>
+                  </Avatar>
+                  {layer.label}
+                </Toggle>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
       <MapContainer
         minZoom={-10}
         maxZoom={18}
         zoom={-10}
         center={[0, 0]}
         crs={CRS.Simple}
-        layers={lg}
+        layers={l.map((layer: Layer) => {
+          return layer.group;
+        })}
         zoomControl={false}
         boxZoom={false}
         style={{
@@ -437,4 +425,6 @@ export default function MapElement(clayers: { layers: Layer[] }) {
       </MapContainer>
     </div>
   );
-}
+};
+
+export default MapElement;

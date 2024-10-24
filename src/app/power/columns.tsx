@@ -23,9 +23,9 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
-    accessorKey: "CircuitID",
+    accessorKey: "CircuitGroupID",
     header: ({ column }) => makeHeader(column, "Circuit ID"),
-    cell: ({ row }) => makeCell(row, "CircuitID"),
+    cell: ({ row }) => makeCell(row, "CircuitGroupID"),
   },
   {
     accessorKey: "PowerCapacity",

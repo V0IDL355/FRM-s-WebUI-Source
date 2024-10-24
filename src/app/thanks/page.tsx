@@ -76,9 +76,9 @@ export default function Thanks() {
         display: "flex",
         flexWrap: "wrap",
         justifyContent: "center",
-        padding: 25,
+        margin: 5,
+        marginTop: 25,
         gap: 5,
-        boxSizing: "border-box",
       }}
     >
       {thxTo.map((thanks, i) => (
@@ -95,7 +95,6 @@ export default function Thanks() {
           <Link
             href={thanks.link}
             style={{
-              zIndex: 2,
               position: "relative",
               flexGrow: 1,
               width: "100%",

@@ -88,49 +88,16 @@
     }
 }
 
-@property --angle {
-    syntax: "<angle>";
-    initial-value: 0deg;
-    inherits: false;
-}
-
-@keyframes spin {
-    from {
-        --angle: 0deg;
-    }
-    to {
-        --angle: 360deg;
-    }
-}
-
 .card {
-    padding: 2px;
-    text-align: center;
-    position: relative;
+    border-radius: var(--radius);
+    transition: all 1s ease-in-out;
 }
 
-.card:hover::after,
-.card:hover::before {
-    content: "";
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    background-image: conic-gradient(
-            from var(--angle),
-            #e8a361 0%,
-            #e8a361 10%,
-            transparent 10%,
-            transparent 50%,
-            #ca6d35 50%,
-            #ca6d35 60%,
-            transparent 60%,
-            transparent 100%
-    );
-    top: 50%;
-    left: 50%;
-    translate: -50% -50%;
-    z-index: 1;
-    border-radius: var(--radius);
-    animation: 3s spin linear infinite reverse;
-    border: none;
+.card:hover {
+    box-shadow: 0 0 5px #e8a361,
+    0 0 10px #e8a361,
+    0 0 20px #ca6d35,
+    0 0 30px #ca6d35;
+    scale: 1.005;
+    z-index: 2;
 }

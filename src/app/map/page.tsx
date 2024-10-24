@@ -10,7 +10,7 @@ export default function Map() {
 
   useEffect(() => {
     const { LayerGroup } = require("leaflet");
-    const newLayers = [
+    setLayers([
       {
         name: "playerG",
         label: "Players",
@@ -79,7 +79,7 @@ export default function Map() {
         name: "powerslugG",
         label: "Power Slug",
         url: "getPowerSlug",
-        enabled: true,
+        enabled: false,
         iconURL: "/img/Map/power_slug.png",
         group: new LayerGroup(),
       },
@@ -91,11 +91,10 @@ export default function Map() {
         iconURL: "/img/Map/space_elevator.png",
         group: new LayerGroup(),
       },
-    ];
-    setLayers(newLayers);
+    ]);
   }, []);
 
   if (layers.length === 0) return null;
 
-  return <MapElement layers={layers} />;
+  return <MapElement l={layers} />;
 }
