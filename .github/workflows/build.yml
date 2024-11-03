@@ -23,7 +23,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache npm dependencies
-        uses: actions/cache@v4.4.3
+        uses: actions/cache@vv4.1.2
         with:
           path: |
             ~/.npm
