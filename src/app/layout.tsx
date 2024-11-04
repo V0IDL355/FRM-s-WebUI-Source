@@ -7,6 +7,7 @@ import React from "react";
 export const metadata: Metadata = {
   title: "Ficsit Remote Monitoring",
   description: "Monitor your factory remotely!",
+  icons: "/favicon.png",
 };
 
 export default function RootLayout({
@@ -16,10 +17,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link href="/favicon.png" rel="icon" type="image/png" />
-        <meta name="referrer" content="no-referrer" />
-      </head>
       <body>
         <ThemeProvider
           attribute="class"

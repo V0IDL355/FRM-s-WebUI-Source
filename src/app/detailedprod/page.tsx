@@ -2,7 +2,7 @@
 import { DataTable } from "@/app/utils/table/data-table";
 import { columns } from "./columns";
 import React, { useEffect, useState } from "react";
-import { api, fdelay } from "@/app/utils/api";
+import { api, fdelay } from "@/lib/api";
 import {
   ChartConfig,
   ChartContainer,

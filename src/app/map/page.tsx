@@ -1,100 +1,118 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import dynamic from "next/dynamic";
+import {images} from "@/../public/images";
 
-const MapElement = dynamic(() => import("@/app/utils/map"), { ssr: false });
+const MapElement = dynamic(() => import("@/app/utils/map"), {ssr: false});
 
 export default function Map() {
-  const [layers, setLayers] = useState<any>([]);
+    const [layers, setLayers] = useState<any>([]);
 
-  useEffect(() => {
-    const { LayerGroup } = require("leaflet");
-    setLayers([
-      {
-        name: "playerG",
-        label: "Players",
-        url: "getPlayer",
-        enabled: true,
-        iconURL: "/img/Map/player.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "vehiclesG",
-        label: "Vehicles",
-        url: "getVehicles",
-        enabled: true,
-        iconURL: "/img/Map/tractor.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "truckstationG",
-        label: "Truck Station",
-        url: "getTruckStation",
-        enabled: true,
-        iconURL: "/img/Map/truck_station.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "droneG",
-        label: "Drone",
-        url: "getDrone",
-        enabled: true,
-        iconURL: "/img/Map/drone.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "dronestationG",
-        label: "Drone Station",
-        url: "getDroneStation",
-        enabled: true,
-        iconURL: "/img/Map/drone_station.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "trainsG",
-        label: "Trains",
-        url: "getTrains",
-        enabled: true,
-        iconURL: "/img/Map/train.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "trainstationsG",
-        label: "Train Stations",
-        url: "getTrainStation",
-        enabled: true,
-        iconURL: "/img/Map/train_station.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "radartowerG",
-        label: "Radar Tower",
-        url: "getRadarTower",
-        enabled: true,
-        iconURL: "/img/Map/radar_tower.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "powerslugG",
-        label: "Power Slug",
-        url: "getPowerSlug",
-        enabled: false,
-        iconURL: "/img/Map/power_slug.png",
-        group: new LayerGroup(),
-      },
-      {
-        name: "spaceelevatorG",
-        label: "Space Elevator",
-        url: "getSpaceElevator",
-        enabled: true,
-        iconURL: "/img/Map/space_elevator.png",
-        group: new LayerGroup(),
-      },
-    ]);
-  }, []);
+    useEffect(() => {
+        const {LayerGroup} = require("leaflet");
+        setLayers([{
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.player,
+            label: "Players",
+            name: "player",
+            url: "getPlayer",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.truck,
+            label: "Vehicles",
+            name: "vehicles",
+            url: "getVehicles",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.truck_station,
+            label: "Truck Station",
+            name: "truck-station",
+            url: "getTruckStation",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.drone,
+            label: "Drone",
+            name: "drone",
+            url: "getDrone",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.drone_station,
+            label: "Drone Station",
+            name: "drone-station",
+            url: "getDroneStation",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.train,
+            label: "Trains",
+            name: "trains",
+            url: "getTrains",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.train_station,
+            label: "Train Stations",
+            name: "train-stations",
+            url: "getTrainStation",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.radar_tower,
+            label: "Radar Tower",
+            name: "radar-tower",
+            url: "getRadarTower",
+        }, {
+            enabled: false,
+            group: new LayerGroup(),
+            iconURL: images.map.power_slug,
+            label: "Power Slug",
+            name: "power-slug",
+            url: "getPowerSlug",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.space_elevator,
+            label: "Space Elevator",
+            name: "space-elevator",
+            url: "getSpaceElevator",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.drop_pod,
+            label: "Drop Pod",
+            name: "drop-pod",
+            url: "getDropPod",
+        }, {
+            enabled: true,
+            group: new LayerGroup(),
+            iconURL: images.map.question_mark,
+            label: "Resource Node",
+            name: "resource-node",
+            url: "getResourceNode",
+        }, {
+            enabled: false,
+            group: new LayerGroup(),
+            iconURL: images.map.question_mark,
+            label: "Resource Geyser",
+            name: "resource-geyser",
+            url: "getResourceGeyser",
+        }, {
+            enabled: false,
+            group: new LayerGroup(),
+            iconURL: images.map.question_mark,
+            label: "Resource Well",
+            name: "resource-well",
+            url: "getResourceWell",
+        }]);
+    }, []);
 
-  if (layers.length === 0) return null;
+    if (layers.length === 0) return null;
 
-  return <MapElement l={layers} />;
+    return <MapElement l={layers}/>;
 }

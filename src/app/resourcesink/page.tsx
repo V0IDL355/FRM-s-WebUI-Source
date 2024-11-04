@@ -1,7 +1,7 @@
 "use client";
 
 import { useSignalEffect } from "@preact/signals-react";
-import { api, fdelay } from "@/app/utils/api";
+import { api, fdelay } from "@/lib/api";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
