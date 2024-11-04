@@ -29,12 +29,13 @@
         "public/*"
       ]
     },
-    "target": "ES2017"
+    "target": "ES2017",
+    "baseUrl": "./"
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "./next-env.d.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
