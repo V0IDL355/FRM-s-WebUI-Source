@@ -1,539 +1,439 @@
 "use client";
-import {signal} from "@preact/signals-react";
-import {CRS, DivIcon, LatLng, LayerGroup, Marker, Popup} from "leaflet";
-import {ImageOverlay, MapContainer, useMap} from "react-leaflet";
-import {v5 as uuidv5} from "uuid";
-import {api, mdelay} from "@/lib/api";
-import React, {useEffect, useState} from "react";
-import {Card, CardDescription, CardHeader, CardTitle,} from "@/components/ui/card";
-import "@/app/css/leaflet.css";
-import {Check, CircleCheck, CircleX, Layers, X, Zap} from "lucide-react";
-import {Toggle} from "@/components/ui/toggle";
+import {baseURL} from "@/lib/api";
+import React, {useCallback, useEffect, useState} from "react";
+import {Layers} from "lucide-react";
 import {Separator} from "@/components/ui/separator";
-import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover";
 import {Button} from "@/components/ui/button";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {images} from "@public/images";
-import {renderToString} from "react-dom/server";
+import {map, misc, power_slugs, resources} from "@public/images";
 import {Badge} from "@/components/ui/badge";
+import {Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger,} from "@/components/ui/sheet";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import DeckGL, {
+    BitmapLayer, COORDINATE_SYSTEM, IconLayer, LineLayer, OrthographicView, PickingInfo, PolygonLayer,
+} from "deck.gl";
+import {Building, buildings} from "@/lib/buildings";
+import {makePopup} from "@/components/map/popup";
+import {Toggle} from "@/components/ui/toggle";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
-export interface Layer {
-    group: LayerGroup;
-    name: string;
-    label: string;
-    enabled: boolean;
-    url: string;
-    iconURL: string;
-}
+const MAP_VIEW = new OrthographicView({
+    id: "2d-scene", flipY: false, controller: {
+        dragRotate: false,
+    },
+});
 
-const map = signal<any>(null);
+const makeElement = (key: any, val: any, count: number, t?: string) => {
+    let color = {
+        pure: "96deg,44%,68%",
+        normal: "20deg,79%,70%",
+        impure: "359deg,68%,71%",
+        mk1: "200,61%,42%",
+        mk2: "26,69%,48%",
+        mk3: "288,61%,50%",
+    }[t as string] ?? "229deg,13%,52%";
 
-function InitMap() {
-    map.value = useMap();
-
-    return <></>;
-}
-
-const CircleConnector = ({imageUrl, className, innerColor}: {
-    imageUrl: string, className: string, innerColor: string
-}) => {
-    const markerColor = "29.33, 58.19%, 64.51%"
-    return (<div className="absolute left-[-50%]">
-        <div className="relative">
-            <svg
-                className="absolute pointer-events-none size-[200px] bottom-[-50px] left-[-60px]"
-                style={{zIndex: -1}}
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <line
-                    x1={16} y1={50}
-                    x2={70} y2={145}
-                    stroke={`hsl(${markerColor})`}
-                    strokeWidth={3}
-                />
-            </svg>
-
-            <div className="size-[16px] rounded-full" style={{
-                backgroundColor: `hsl(${markerColor})`
-            }}/>
-
-            <div
-                className="size-[70px] rounded-full absolute top-[-100px] left-[-70px] flex items-center justify-center border-[2px] bg-card"
-                style={{
-                    borderColor: `hsl(${markerColor})`
-                }}
-            >
-                <div className="size-[60px] rounded-full p-[5px] border" style={{
-                    backgroundColor: `hsla(${innerColor}, 0.5)`, borderColor: `hsl(${innerColor})`
-                }}>
-                    <img src={imageUrl} alt={className} className={"size-full"}/>
-                </div>
-            </div>
-        </div>
+    return (<div
+        key={key}
+        className="border items-center justify-center flex-col p-2 rounded-2xl inline-flex gap-1"
+        style={{
+            backgroundColor: `hsla(${color}, 0.5)`, borderColor: `hsl(${color})`,
+        }}
+    >
+        <img src={val.icon} alt={key} className="size-[50px]  top-[10px]"/>
+        <Badge
+            className={" left-0 right-0 bottom-[-10px] backdrop-blur-md bg-white/10 text-white border hover:bg-white/5 transition-all duration-700 text-center justify-center"}
+            style={{borderColor: `hsl(${color})`}}
+        >
+            {count}
+        </Badge>
     </div>);
-
-
 };
 
-const MapElement: React.FC<{ l: Layer[] }> = ({l}) => {
-    const [layers, setLayers] = useState<Layer[]>(l);
-    const [markers, setMarkers] = useState<any>([]);
+const renderCounts = (obj: any): any => {
+    return Object.entries(obj).flatMap(([key1, value1]: [string, any]) => Object.entries(value1).flatMap(([key2, value2]: [string, any]) => {
+        return (<div
+            className={"w-full flex gap-2 justify-center flex-wrap"}
+            key={key1 + key2}
+        >
+            {Array.isArray(value2) ? value2.map((finalVal) => makeElement(finalVal.key, finalVal, finalVal.count, finalVal.key,),) : typeof value2.count === "object" ? Object.entries(value2.count).map(([purityKey, purityResource]: [string, any]) => makeElement(key2 + purityKey, value2, purityResource, purityKey,),) : makeElement(key2, value2, value2.count)}
+        </div>);
+    }),);
+};
+
+const whatWasIgnored = (array: any[], whitelist: string[], ignore_list_well: string[] = [],) => array
+    .filter((node) => !whitelist.includes(node["ClassName"]))
+    .filter((node) => !ignore_list_well.includes(node["ClassName"]))
+    .filter((node, index, self) => self.findIndex((t) => t["ClassName"] === node["ClassName"]) === index,);
+
+function getSize(location: { x: number; y: number; z: number; rotation: number }, building: Building,) {
+    let width = building.length * 100;
+    let length = building.width * 100;
+
+    let x = location.x;
+    let y = location.y * -1;
+    let rotation = location.rotation;
+
+    const points = [[x - width / 2, y + length / 2], [x + width / 2, y + length / 2], [x + width / 2, y - length / 2], [x - width / 2, y - length / 2],];
+
+    const radians = (rotation * Math.PI) / 180;
+
+    function rotatePoint(px: number, py: number) {
+        const rotatedX = x + (px - x) * Math.cos(radians) - (py - y) * Math.sin(radians);
+        const rotatedY = y + (px - x) * Math.sin(radians) + (py - y) * Math.cos(radians);
+        return [rotatedX, rotatedY];
+    }
+
+    return points.map((point) => rotatePoint(point[0], point[1]));
+}
+
+const MapElement: React.FC = () => {
+    const [dataVersion, setDataVersion] = useState<number>(0);
 
     useEffect(() => {
-        const intervals: any = [];
-        l.forEach((layer: Layer) => {
-            const interval = setInterval(async () => {
-                try {
-                    if (!layer.enabled) {
-                        return;
-                    }
-                    const result: Array<any> = (await api.get(layer.url)).data;
-                    result.forEach((res) => {
-                        if (res == null) {
-                            return;
-                        }
-                        const lat = res.location.y * -1;
-                        const lon = res.location.x;
-                        const markerLocation = new LatLng(lat, lon);
+        const nextUpdate = setTimeout(() => setDataVersion(dataVersion + 1), 1000);
+        return () => clearTimeout(nextUpdate);
+    }, [dataVersion]);
 
-                        let id: string = res["ID"];
-                        let iconUrl = layer.iconURL;
-
-                        let popup: any;
-
-                        let marker_color = "229deg, 13%, 52%"
-
-                        switch (layer.url) {
-                            case "getPlayer":
-                                popup = (<CardHeader>
-                                    <CardTitle>Player: {res["Name"] || "Offline"}</CardTitle>
-                                </CardHeader>);
-                                iconUrl = res["Dead"] ? images.map.player_dead : (res["Online"] as boolean) ? images.map.player : images.map.player_offline;
-                                break;
-                            case "getVehicles":
-                                popup = (<CardHeader>
-                                    <CardTitle style={{textAlign: "center"}}>
-                                        {res["Name"]}
-                                    </CardTitle>
-                                    <CardDescription>
-                                        <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
-                                            <li>Current Gear: {res["CurrentGear"]}</li>
-                                            <li>Forward Speed: {res["ForwardSpeed"]}</li>
-                                            <li>Engine RPM: {res["EngineRPM"]}</li>
-                                            <li>Throttle Percent: {res["ThrottlePercent"]}</li>
-                                        </ul>
-                                        <Separator/>
-                                        <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
-                                            <li>
-                                                <div className="flex items-center">
-                                                    AutoPilot:{" "}
-                                                    {res["AutoPilot"] ? (<CircleCheck className="h-4 w-4 mr-1"/>) : (
-                                                        <CircleX className="h-4 w-4 mr-1"/>)}
-                                                </div>
-                                            </li>
-                                            <li>Path Name: {res["PathName"]}</li>
-                                            <li>
-                                                <div className="flex items-center">
-                                                    {" "}
-                                                    Following Path:{" "}
-                                                    {res["FollowingPath"] ? (
-                                                        <CircleCheck className="h-4 w-4 mr-1"/>) : (
-                                                        <CircleX className="h-4 w-4 mr-1"/>)}
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </CardDescription>
-                                </CardHeader>);
-
-                                iconUrl = {
-                                    BP_Golfcart_C: images.map.factory_cart,
-                                    BP_Tractor_C: images.map.tractor,
-                                    BP_Truck_C: images.map.truck,
-                                }[res["ClassName"] as string] ?? images.map.explorer;
-                                break;
-                            case "getTruckStation":
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]}</CardTitle>
-                                    <CardDescription>
-                                        <p>LoadMode: WIP</p>
-                                    </CardDescription>
-                                </CardHeader>);
-                                id = res["location"]["x"] + res["location"]["y"] + res["location"]["z"];
-                                break;
-                            case "getDrone":
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]}</CardTitle>
-                                    <CardDescription>
-                                        <p>Destination: {res["CurrentDestination"]}</p>
-                                        <p>Flying Speed: {Math.round(res["FlyingSpeed"])}</p>
-                                        <p className="flex items-center">
-                                            Flying:{" "}
-                                            {Math.round(res["FlyingSpeed"]) > 0 ? (
-                                                <CircleCheck className="h-4 w-4 mr-1"/>) : (
-                                                <CircleX className="h-4 w-4 mr-1"/>)}
-                                        </p>
-                                    </CardDescription>
-                                </CardHeader>);
-                                break;
-                            case "getDroneStation":
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]}</CardTitle>
-                                    <CardDescription>
-                                        <p> Paired Station: {res["PairedStation"]}</p>
-                                    </CardDescription>
-                                </CardHeader>);
-                                id = res["location"]["x"] + res["location"]["y"] + res["location"]["z"];
-                                break;
-                            case "getTrains":
-                                popup = (<CardHeader>
-                                    <CardTitle>
-                                        {res["Name"]} | {res["Status"]}
-                                    </CardTitle>
-                                    <CardDescription>
-                                        <p>Speed: {res["ForwardSpeed"]}</p>
-                                        <p>Train Station: {res["TrainStation"]}</p>
-                                    </CardDescription>
-                                </CardHeader>);
-                                break;
-                            case "getTrainStation":
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]}</CardTitle>
-                                </CardHeader>);
-                                id = res["location"]["x"] + res["location"]["y"] + res["location"]["z"];
-                                break;
-                            case "getRadarTower":
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]}</CardTitle>
-                                </CardHeader>);
-                                id = res["location"]["x"] + res["location"]["y"] + res["location"]["z"];
-                                break;
-                            case "getPowerSlug":
-                                let slug_color = {
-                                    BP_Crystal_C: "200, 61%, 42%",
-                                    BP_Crystal_mk2_C: "26, 69%, 48%",
-                                    BP_Crystal_mk3_C: "288, 61%, 50%",
-                                }[res["ClassName"] as string];
-
-                                popup = (<CardHeader>
-                                    <div className={"inline-flex items-center gap-1"}>
-                                        <CardTitle>Slug</CardTitle>
-
-                                        <Badge
-                                            style={{
-                                                backgroundColor: `hsla(${slug_color}, 0.2)`,
-                                                borderColor: `hsl(${slug_color})`,
-                                                color: `hsl(${slug_color})`,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                            }}
-                                            className={`w-full justify-center border`}
-                                            variant={"outline"}
-                                        >
-                                            {{
-                                                BP_Crystal_C: "MK1", BP_Crystal_mk2_C: "MK2", BP_Crystal_mk3_C: "MK3",
-                                            }[res["ClassName"] as string]}
-                                        </Badge>
-                                    </div>
-                                </CardHeader>);
-                                iconUrl = {
-                                    BP_Crystal_C: images.map.power_slug_mk1,
-                                    BP_Crystal_mk2_C: images.map.power_slug_mk2,
-                                    BP_Crystal_mk3_C: images.map.power_slug_mk3,
-                                }[res["ClassName"] as string] ?? images.map.power_slug;
-                                break;
-                            case "getSpaceElevator":
-                                let fully_upgraded_color = res["FullyUpgraded"] ? "96deg, 44%, 68%" : "359deg, 68%, 71%";
-                                let upgrade_ready_color = res["UpgradeReady"] ? "96deg, 44%, 68%" : "359deg, 68%, 71%";
-
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]}</CardTitle>
-                                    <CardDescription>
-                                        <Badge
-                                            style={{
-                                                backgroundColor: `hsla(${fully_upgraded_color}, 0.2)`,
-                                                borderColor: `hsl(${fully_upgraded_color})`,
-                                                color: `hsl(${fully_upgraded_color})`,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                            }}
-                                            className={"w-full justify-center border relative inline-flex"}
-                                            variant={"outline"}
-                                        >
-                                            {res["FullyUpgraded"] ? <Check className="size-4 absolute left-[5px]"/> :
-                                                <X className="size-4 absolute left-[5px]"/>}
-                                            {res["FullyUpgraded"] ? "Fully Upgraded 🎉" : "Not Fully Upgraded"}
-                                        </Badge>
-                                        <Badge
-                                            style={{
-                                                backgroundColor: `hsla(${upgrade_ready_color}, 0.2)`,
-                                                borderColor: `hsl(${upgrade_ready_color})`,
-                                                color: `hsl(${upgrade_ready_color})`,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                            }}
-                                            className={"w-full justify-center border relative inline-flex"}
-                                            variant={"outline"}
-                                        >
-                                            {res["UpgradeReady"] ? <Check className="size-4 absolute left-[5px]"/> :
-                                                <X className="size-4 absolute left-[5px]"/>}
-                                            {res["UpgradeReady"] ? "Upgrade Ready" : "Upgrade Not Ready"}
-                                        </Badge>
-                                        <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
-                                            {res["CurrentPhase"].map((item: {
-                                                Name: string,
-                                                ClassName: string,
-                                                Amount: number,
-                                                RemainingCost: number,
-                                                TotalCost: number
-                                            }) => (
-
-                                                <li key={item.ClassName + res["ID"]}>{item.Name} {item.Amount}/{item.TotalCost}</li>))}
-                                        </ul>
-                                    </CardDescription>
-                                </CardHeader>);
-                                break;
-                            case "getDropPod":
-                                let looted_color = res["Looted"] ? "96deg, 44%, 68%" : "359deg, 68%, 71%";
-                                popup = (<CardHeader>
-                                    <CardTitle>Drop Pod</CardTitle>
-                                    <CardDescription>
-                                        <div className={"gap-1 flex items-center flex-col"}>
-                                            {res["RepairItem"] != "No Item" || (res["RepairAmount"] !== 0 && (<Badge
-                                                style={{
-                                                    backgroundColor: "hsla(227deg, 17%, 58%, 0.2)",
-                                                    borderColor: "hsl(227deg, 17%, 58%)",
-                                                    color: "hsl(227deg, 17%, 58%)",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                }}
-                                                className={"w-full justify-center border"}
-                                                variant={"outline"}
-                                            >
-                                                {res["RepairItem"]} {res["RepairAmount"]}
-                                            </Badge>))}
-
-                                            {res["PowerRequired"] !== 0 && (<Badge
-                                                style={{
-                                                    backgroundColor: "hsla(40deg, 62%, 73%, 0.2)",
-                                                    borderColor: "hsl(40deg, 62%, 73%)",
-                                                    color: "hsl(40deg, 62%, 73%)",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                }}
-                                                className={"w-full justify-center border relative"}
-                                                variant={"outline"}
-                                            >
-                                                <Zap className="size-4 absolute left-[5px]"/>
-                                                {res["PowerRequired"]}
-                                            </Badge>)}
-
-                                            <Badge
-                                                style={{
-                                                    backgroundColor: `hsla(${looted_color}, 0.2)`,
-                                                    borderColor: `hsl(${looted_color})`,
-                                                    color: `hsl(${looted_color})`,
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                }}
-                                                className={"w-full justify-center border relative inline-flex"}
-                                                variant={"outline"}
-                                            >
-                                                {res["Looted"] ? <Check className="size-4 absolute left-[5px]"/> :
-                                                    <X className="size-4 absolute left-[5px]"/>}
-                                                {res["Looted"] ? "Looted" : "Not Looted"}
-                                            </Badge>
-                                        </div>
-                                    </CardDescription>
-                                </CardHeader>);
-                                marker_color = looted_color
-                                break;
-                            case "getResourceNode":
-                                let node_purity_color = {
-                                    Pure: "96deg, 44%, 68%", Normal: "20deg, 79%, 70%", Impure: "359deg, 68%, 71%"
-                                }[res["Purity"] as string] ?? "229deg, 13%, 52%";
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]} Resource Node</CardTitle>
-                                    <CardDescription>
-                                        <Badge
-                                            style={{
-                                                backgroundColor: `hsla(${node_purity_color}, 0.2)`,
-                                                borderColor: `hsl(${node_purity_color})`,
-                                                color: `hsl(${node_purity_color})`,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                            }}
-                                            className={"w-full justify-center border relative inline-flex"}
-                                            variant={"outline"}
-                                        >
-                                            {res["Purity"]}
-                                        </Badge>
-                                    </CardDescription>
-                                </CardHeader>);
-                                iconUrl = `${images.resources.path + res["ClassName"]}.png`
-                                marker_color = node_purity_color
-                                break;
-
-                            // case "getResourceGeyser":
-                            //     popup = (<CardHeader>
-                            //         <CardTitle>{res["Name"]} Resource Geyser</CardTitle>
-                            //         <CardDescription>
-                            //             <Badge
-                            //                 style={{
-                            //                     backgroundColor: `hsla(${purity_color}, 0.2)`,
-                            //                     borderColor: `hsl(${purity_color})`,
-                            //                     color: `hsl(${purity_color})`,
-                            //                     display: "flex",
-                            //                     alignItems: "center",
-                            //                     justifyContent: "center",
-                            //                 }}
-                            //                 className={"w-full justify-center border relative inline-flex"}
-                            //                 variant={"outline"}
-                            //             >
-                            //                 {res["Purity"]}
-                            //             </Badge>
-                            //         </CardDescription>
-                            //     </CardHeader>);
-                            //     break
-                            case "getResourceWell":
-                                let well_purity_color = {
-                                    Pure: "96deg, 44%, 68%", Normal: "20deg, 79%, 70%", Impure: "359deg, 68%, 71%"
-                                }[res["Purity"] as string] ?? "229deg, 13%, 52%";
-                                popup = (<CardHeader>
-                                    <CardTitle>{res["Name"]} Resource Geyser</CardTitle>
-                                    <CardDescription>
-                                        <Badge
-                                            style={{
-                                                backgroundColor: `hsla(${well_purity_color}, 0.2)`,
-                                                borderColor: `hsl(${well_purity_color})`,
-                                                color: `hsl(${well_purity_color})`,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                            }}
-                                            className={"w-full justify-center border relative inline-flex"}
-                                            variant={"outline"}
-                                        >
-                                            {res["Purity"]}
-                                        </Badge>
-                                    </CardDescription>
-                                </CardHeader>);
-                                iconUrl = `${images.resources.path + res["ClassName"]}.png`
-                                marker_color = well_purity_color
-                                break
-                        }
-
-                        const markerId = uuidv5(String(id), uuidv5.URL);
-
-                        popup = renderToString(<Card key={markerId + "-popup"}>{popup}</Card>,);
-
-                        if (!markers[layer.url]) {
-                            setMarkers((prevMarkers: any) => ({
-                                ...prevMarkers, [layer.url]: [],
-                            }));
-                        }
-
-
-                        let marker: Marker = !!markers[layer.url][markerId] ? markers[layer.url][markerId] : new Marker(markerLocation);
-                        if (!markers[layer.url][markerId]) {
-                            marker.addTo(layer.group);
-                            marker.bindPopup(new Popup({
-                                closeButton: false,
-                            }).setContent(popup),);
-                        } else if (!!markers[layer.url][markerId]) {
-                            marker.getPopup()?.setContent(popup);
-                        }
-                        marker?.setLatLng(markerLocation);
-                        marker?.getPopup()?.setLatLng(markerLocation);
-                        marker?.setIcon(new DivIcon({
-                            html: renderToString(<CircleConnector imageUrl={iconUrl} className={res["ClassName"]}
-                                                                  innerColor={marker_color}/>), className: undefined
-                        }));
-                        setMarkers((prevMarkers: any) => ({
-                            ...prevMarkers, [layer.url]: {...prevMarkers[layer.url], [markerId]: marker},
-                        }));
-                    });
-                } catch (e) {
-                    // console.error(e);
-                }
-            }, mdelay);
-            intervals.push(interval);
-        });
-        return () => {
-            intervals.forEach((id: NodeJS.Timeout | any) => clearInterval(id));
-        };
+    const mapImg = new BitmapLayer({
+        id: "bitmap-layer", image: map, bounds: [-375e3 + 50301.83203125, -375e3, 375e3 + 50301.83203125, 375e3],
     });
+
+    const layers = [new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getHUBTerminal?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70, url: misc.hub, width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "hub",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getRadarTower?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                url: misc.radar_tower, width: 70, height: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "radio_tower",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getTrainStation?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70, url: misc.vehicles.trains.train_station, width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "train_station",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getTrains?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70, url: misc.vehicles.trains.train, width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "train",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getDroneStation?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70, url: misc.drones.drone_station, width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "drone_station",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getDrone?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70, url: misc.drones.drone, width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "drone",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getTruckStation?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70, url: misc.vehicles.trucks.truck_station, width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "truck_station",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getSpaceElevator?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70,
+                url: d["FullyUpgraded"] || d["UpgradeReady"] ? misc.space_elevator.space_elevator_ready : misc.space_elevator.space_elevator,
+                width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "space_elevator",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getPlayer?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                url: d["Dead"] ? misc.player.player_dead : (d["Online"] as boolean) ? misc.player.alive : misc.player.player_offline,
+                width: 70,
+                height: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "players",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getVehicles?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                height: 70, url: {
+                    BP_Golfcart_C: misc.vehicles.factory_cart,
+                    BP_Tractor_C: misc.vehicles.tractor,
+                    BP_Truck_C: misc.vehicles.trucks.truck,
+                }[d["ClassName"] as string] ?? misc.vehicles.explorer, width: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "vehicles",
+        pickable: true,
+        visible: true,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getPowerSlug?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                url: {
+                    BP_Crystal_C: power_slugs.power_slug_mk1,
+                    BP_Crystal_mk2_C: power_slugs.power_slug_mk2,
+                    BP_Crystal_mk3_C: power_slugs.power_slug_mk3,
+                }[d["ClassName"] as string] ?? misc.question_mark, width: 70, height: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "slug",
+        pickable: true,
+        visible: false,
+    }), new IconLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        data: `${baseURL}getDropPod?v=${dataVersion}`,
+        getIcon: (d) => {
+            return {
+                url: d["Looted"] ? misc.drop_pod.drop_pod_collected : misc.drop_pod.drop_pod, width: 70, height: 70,
+            };
+        },
+        getPosition: (d: any) => [d.location.x, d.location.y * -1],
+        getSize: 70,
+        id: "drop_pod",
+        pickable: true,
+        visible: true,
+    }), new LineLayer({
+        pickable: true,
+        id: "cables",
+        data: `${baseURL}getCables?v=${dataVersion}`,
+
+        getColor: (d) => [0, 122, 255],
+        getSourcePosition: (d) => [d["location0"].x, d["location0"].y * -1],
+        getTargetPosition: (d) => [d["location1"].x, d["location1"].y * -1],
+        getWidth: 2,
+        visible: true,
+    }), new PolygonLayer({
+        data: `${baseURL}getFactory?v=${dataVersion}`, getFillColor: (d: any) => {
+            if ((d["ClassName"] as string).includes("Smelter")) return new Uint8Array(buildings.smelter.color);
+            if ((d["ClassName"] as string).includes("Assembler")) return new Uint8Array(buildings.assembler.color);
+            if ((d["ClassName"] as string).includes("Constructor")) return new Uint8Array(buildings.constructor.color);
+            if ((d["ClassName"] as string).includes("Manufacturer")) return new Uint8Array(buildings.manufacturer.color);
+            if ((d["ClassName"] as string).includes("HadronCollider")) return new Uint8Array(buildings.particle_accelerator.color);
+            if ((d["ClassName"] as string).includes("Packager")) return new Uint8Array(buildings.packager.color);
+            if ((d["ClassName"] as string).includes("Refinery")) return new Uint8Array(buildings.refinery.color);
+            if ((d["ClassName"] as string).includes("Converter")) return new Uint8Array(buildings.converter.color);
+            if ((d["ClassName"] as string).includes("Foundry")) return new Uint8Array(buildings.foundry.color);
+            return [100, 100, 100, 100];
+        }, getLineColor: [41, 44, 60],
+
+        getLineWidth: 20, getPolygon: (d) => {
+            if ((d["ClassName"] as string).includes("Assembler")) return getSize(d.location, buildings.assembler);
+            if ((d["ClassName"] as string).includes("Constructor")) return getSize(d.location, buildings.constructor);
+            if ((d["ClassName"] as string).includes("Smelter")) return getSize(d.location, buildings.smelter);
+            if ((d["ClassName"] as string).includes("Manufacturer")) return getSize(d.location, buildings.manufacturer);
+            if ((d["ClassName"] as string).includes("HadronCollider")) return getSize(d.location, buildings.particle_accelerator);
+            if ((d["ClassName"] as string).includes("Packager")) return getSize(d.location, buildings.packager);
+            if ((d["ClassName"] as string).includes("Refinery")) return getSize(d.location, buildings.refinery);
+            if ((d["ClassName"] as string).includes("Converter")) return getSize(d.location, buildings.converter);
+            if ((d["ClassName"] as string).includes("Foundry")) return getSize(d.location, buildings.foundry);
+            return getSize(d.location, {
+                width: 2, length: 2, color: [100, 100, 100, 100],
+            });
+        }, id: "factory", lineWidthMinPixels: 1, pickable: true, visible: true,
+    }), new PolygonLayer({
+        data: `${baseURL}getGenerators?v=${dataVersion}`, getFillColor: (d: any) => {
+            if ((d["ClassName"] as string).includes("Coal")) return new Uint8Array(buildings.coal_generator.color);
+            if ((d["ClassName"] as string).includes("GeneratorBiomass")) return new Uint8Array(buildings.biomass_generator.color);
+            if ((d["ClassName"] as string).includes("IntegratedBiomass")) return new Uint8Array(buildings.biomass_generator_integrated.color);
+            if ((d["ClassName"] as string).includes("Fuel")) return new Uint8Array(buildings.fuel_generator.color);
+            if ((d["ClassName"] as string).includes("Nuclear")) return new Uint8Array(buildings.nuclear_generator.color);
+            return [100, 100, 100, 100];
+        }, getLineColor: [41, 44, 60],
+
+        getLineWidth: 20, getPolygon: (d) => {
+            if ((d["ClassName"] as string).includes("Coal")) return getSize(d.location, buildings.coal_generator);
+            if ((d["ClassName"] as string).includes("GeneratorBiomass")) return getSize(d.location, buildings.biomass_generator);
+            if ((d["ClassName"] as string).includes("IntegratedBiomass")) return getSize(d.location, buildings.biomass_generator_integrated);
+            if ((d["ClassName"] as string).includes("Fuel")) return getSize(d.location, buildings.fuel_generator);
+            if ((d["ClassName"] as string).includes("Nuclear")) return getSize(d.location, buildings.nuclear_generator);
+            return getSize(d.location, {
+                color: [100, 100, 100, 100], length: 2, width: 2,
+            });
+        }, id: "generators", lineWidthMinPixels: 1, pickable: true, visible: true,
+    })];
+
+    const no_update_layers = [new IconLayer({
+        pickable: true,
+        id: "resource_well",
+        getPosition: (d: any) => {
+            return [d.location.x, d.location.y * -1];
+        },
+        getIcon: (d) => {
+            return {
+                url: d["ClassName"] ? `${resources + d["ClassName"]}/${d["Purity"].toLowerCase()}.png` : misc.question_mark,
+                width: 70,
+                height: 70,
+            };
+        },
+        data: `${baseURL}getResourceWell?v=${dataVersion}`,
+        getSize: 70,
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        visible: false,
+    }), new IconLayer({
+        pickable: true,
+        id: "resource_node",
+        getPosition: (d: any) => {
+            return [d.location.x, d.location.y * -1];
+        },
+        getIcon: (d) => {
+            return {
+                url: d["ClassName"] ? `${resources + d["ClassName"]}/${d["Purity"].toLowerCase()}.png` : misc.question_mark,
+                width: 70,
+                height: 70,
+            };
+        },
+        data: `${baseURL}getResourceNode?v=${dataVersion}`,
+        getSize: 70,
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        visible: true,
+    })];
+
+    let nyaa = [...layers, ...no_update_layers]
+
     return (<div>
-        <Popover>
-            <PopoverTrigger
+        <Sheet>
+            <SheetTrigger
+                asChild
                 style={{
                     left: "50%", position: "absolute", zIndex: 2, marginTop: 5,
                 }}
             >
                 <Button variant="outline" asChild>
                     <div>
-                        <Layers className="mr-2 h-4 w-4"/> Layers
+                        <Layers className="mr-2 h-4 w-4"/> Layers NEW
                     </div>
                 </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-                <div className="grid gap-3 m-2">
-                    {layers.map((layer: Layer, index: number) => {
-                        return (<Toggle
-                            key={index + layer.label}
-                            defaultPressed={layer.enabled}
-                            onPressedChange={(pressed) => {
-                                layer.enabled = pressed;
-                                layer.enabled ? layer.group.addTo(map.value) : layer.group.removeFrom(map.value);
-                                setLayers([...l]);
-                            }}
-                            pressed={layer.enabled}
-                            style={{gap: 5}}
-                        >
-                            <Avatar style={{height: 32, width: 32}}>
-                                <AvatarImage src={layer.iconURL}/>
-                                <AvatarFallback>{layer.label}</AvatarFallback>
-                            </Avatar>
-                            {layer.label}
-                        </Toggle>);
-                    })}
-                </div>
-            </PopoverContent>
-        </Popover>
-        <MapContainer
-            minZoom={-10}
-            maxZoom={18}
-            zoom={-10}
-            center={[0, 0]}
-            crs={CRS.Simple}
-            layers={l.map((layer: Layer) => {
-                return layer.group;
-            })}
-            zoomControl={false}
-            boxZoom={false}
-            style={{
-                height: "100%",
-                width: "100%",
-                position: "fixed",
-                backgroundColor: "transparent",
-                overflow: "hidden",
-                borderRadius: 10,
-                padding: 25,
+            </SheetTrigger>
+            <SheetContent side={"left"}>
+                <ScrollArea className={"h-[90vh]"}>
+                    <SheetHeader>
+                        <SheetTitle>Layers & Filters</SheetTitle>
+                        <SheetDescription>
+                            <div className={"gap-2 flex flex-col"}>
+                                {nyaa.map((meow, index: number) => {
+
+                                    return (<Toggle
+                                        key={index + meow.id}
+                                        defaultPressed={meow.props.visible}
+                                        onPressedChange={(pressed) => {
+                                            // @ts-ignore
+                                            nyaa[index] = meow.clone({visible: pressed})
+                                            console.log(nyaa[index].id, meow.id, pressed, meow.props.visible)
+                                        }}
+                                        pressed={meow.props.visible}
+                                        style={{gap: 5}}
+                                        className={"bg-[hsla(29,75%,65%,0.5)] data-[state=on]:bg-[hsla(29,75%,65%,0.7)] border border-[hsl(29,75%,65%)] text-white w-full"}
+                                    >
+                                        <Avatar style={{height: 32, width: 32}}>
+                                            <AvatarImage src={misc.question_mark}/>
+                                            <AvatarFallback>{meow.id}</AvatarFallback>
+                                        </Avatar>
+                                        {meow.id}
+                                    </Toggle>);
+                                })}
+                            </div>
+
+                            <Separator className="my-[15px]"/>
+                            <div className={"gap-2 flex-col flex w-full"}>
+                                {/*{renderCounts(filters)}*/}
+                            </div>
+                        </SheetDescription>
+                    </SheetHeader>
+                </ScrollArea>
+            </SheetContent>
+        </Sheet>
+
+        <DeckGL
+            layers={[mapImg, ...nyaa]}
+            views={MAP_VIEW}
+            initialViewState={{
+                target: [0, 0, 0], zoom: -10, maxZoom: 18, minZoom: -10,
             }}
-        >
-            <ImageOverlay
-                url={images.map.map}
-                bounds={[[-375e3, -324698.832031], [375e3, 425301.832031],]}
-                zIndex={-1}
-            />
-            <InitMap/>
-        </MapContainer>
+            style={{
+                height: "100%", width: "100%", position: "fixed", backgroundColor: "transparent", overflow: "hidden",
+            }}
+            getTooltip={useCallback(({object, layer}: PickingInfo) => {
+                return (object && {
+                    html: makePopup(layer?.id, object), style: {
+                        backgroundColor: "transparent",
+                    },
+                });
+            }, [])}
+        />
     </div>);
 };
 

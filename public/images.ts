@@ -1,55 +1,57 @@
-/***Images for the map*/
-const map = {
-    beacon: "img/beacon.png",
-    crate_death: "img/create_death.png",
-    crate_loot: "img/crate_loot.png",
-    drone: "img/drone.png",
-    drone_station: "img/drone_station.png",
-    drop_pod: "img/drop_pod.png",
-    explorer: "img/explorer.png",
-    factory_cart: "img/factory_cart.png",
-    hub: "img/hub.png",
-    map: "img/map.png",
-    player: "img/player.png",
-    player_dead: "img/player_dead.png",
-    player_offline: "img/player_offline.png",
-    portal: "img/portal.png",
-    portal_satellite: "img/portal_satellite.png",
-    power: "img/power.png",
-    power_slug: "img/power_slug.png",
-    power_slug_mk1: "img/power_slug_mk1.png",
-    power_slug_mk2: "img/power_slug_mk2.png",
-    power_slug_mk3: "img/power_slug_mk3.png",
-    question_mark: "img/question_mark.png",
-    radar_tower: "img/radar_tower.png",
-    radiation: "img/radiation.png",
-    recycle: "img/recycle.png",
-    space_elevator: "img/space_elevator.png",
-    tape: "img/tape.png",
-    tractor: "img/tractor.png",
-    train: "img/train.png",
-    train_station: "img/train_station.png",
-    truck: "img/truck.png",
-    truck_station: "img/truck_station.png",
-    vehicle_receive: "img/vehicle_receive.png",
-    vehicle_sending: "img/vehicle_sending.png",
-};
+/**
+ *Images for the map
+ **/
+export const map = "img/map.png"
 
-const resources = {
-    bauxite: "img/resources/Desc_OreBauxite_C.png",
-    caterium: "img/resources/Desc_OreGold_C.png",
-    coal: "img/resources/Desc_Coal_C.png",
-    copper: "img/resources/Desc_OreCopper_C.png",
-    geyser: "img/resources/Desc_Geyser_C.png",
-    iron: "img/resources/Desc_OreIron_C.png",
-    limestone: "img/resources/Desc_Stone_C.png",
-    nitrogen_gas: "img/resources/Desc_NitrogenGas_C.png",
-    path: "img/resources/",
-    raw_quartz: "img/resources/Desc_RawQuartz_C.png",
-    sam: "img/resources/Desc_SAM_C.png",
-    sulfur: "img/resources/Desc_Sulfur_C.png",
-    uranium: "img/resources/Desc_OreUranium_C.png",
-    water: "img/resources/Desc_Water_C.png",
+export const power_slugs = {
+    power_slug_mk1: "markers/slugs/power_slug_mk1.png",
+    power_slug_mk2: "markers/slugs/power_slug_mk2.png",
+    power_slug_mk3: "markers/slugs/power_slug_mk3.png",
 }
 
-export const images = {map: map, resources: resources};
+export const misc = {
+    beacon: "markers/misc/beacon.png",
+    crate: {
+        crate_death: "markers/misc/create_death.png", crate_loot: "markers/misc/crate_loot.png",
+    },
+    drones: {
+        drone: "markers/misc/drone.png", drone_station: "markers/misc/drone_station.png",
+    },
+    drop_pod: {
+        drop_pod: "markers/misc/drop_pod.png", drop_pod_collected: "markers/misc/drop_pod_collected.png",
+    },
+    hub: "markers/misc/hub.png",
+    player: {
+        alive: "markers/misc/player.png",
+        player_dead: "markers/misc/player_dead.png",
+        player_offline: "markers/misc/player_offline.png",
+    },
+    portal: {
+        portal: "markers/misc/portal.png", portal_satellite: "markers/misc/portal_satellite.png",
+    },
+    power: "markers/misc/power.png",
+    question_mark: "markers/misc/question_mark.png",
+    radar_tower: "markers/misc/radar_tower.png",
+    radiation: "markers/misc/radiation.png",
+    recycle: "markers/misc/recycle.png",
+    space_elevator: {
+        space_elevator: "markers/misc/space_elevator.png",
+        space_elevator_ready: "markers/misc/space_elevator_ready.png",
+    },
+    tape: "markers/misc/tape.png",
+    vehicle_receive: "markers/misc/vehicle_receive.png",
+    vehicle_sending: "markers/misc/vehicle_sending.png",
+    vehicles: {
+        explorer: "markers/misc/explorer.png",
+        factory_cart: "markers/misc/factory_cart.png",
+        tractor: "markers/misc/tractor.png",
+        trains: {
+            train: "markers/misc/train.png", train_station: "markers/misc/train_station.png",
+        },
+        trucks: {
+            truck: "markers/misc/truck.png", truck_station: "markers/misc/truck_station.png",
+        },
+    },
+}
+
+export const resources = "markers/resources/"
