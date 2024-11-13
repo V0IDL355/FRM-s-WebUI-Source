@@ -639,6 +639,7 @@ const MapElement: React.FC = () => {
                 style={{
                     left: "50%", position: "absolute", zIndex: 2, marginTop: 5,
                 }}
+                className={"left-1/2 absolute z-[2] mt-[5px]"}
             >
                 <Button variant="outline" asChild>
                     <div>
